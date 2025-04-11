@@ -1,0 +1,12 @@
+# Entornos virtuales
+venv/
+env/
+
+# Archivos y carpetas de Python
+__pycache__/
+*.pyc
+
+# Archivos de configuración local, logs, etc.
+*.log
+
+DS_Store
