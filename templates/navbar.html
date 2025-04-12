@@ -1,0 +1,24 @@
+{% macro link_class(page) -%} rounded px-2 py-1 mgl-5 {% if active_page == page %} font-bold bg-teal-500 {% else %} hover:bg-teal-400 {% endif %} {%- endmacro %}
+
+<nav class="bg-teal-300 h-16 flex items-center px-8 justify-between">
+    <ul class="flex space-x-8 text-black uppercase font-medium">
+        <li>
+            <a href="{{ url_for('home') }}" class="{{ link_class('home') }}"> Home </a>
+        </li>
+        <li>
+            <a href="{{ url_for('get_courses') }}" class="{{ link_class('courses') }}"> Courses </a>
+        </li>
+        <li>
+            <a href="{{ url_for('get_students') }}" class="{{ link_class('students') }}">
+                Students
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('get_teachers') }}" class="{{ link_class('teachers') }}">
+                Teachers
+            </a>
+        </li>
+    </ul>
+
+    <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+</nav>
