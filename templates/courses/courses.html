@@ -24,7 +24,7 @@
     </div>
 
     <a
-        class="bg-teal-400 text-white px-4 py-2 rounded-lg hover:bg-teal-500 transition-colors cursor-pointer "
+        class="bg-teal-400 text-white px-4 py-2 rounded-lg hover:bg-teal-500 transition-colors cursor-pointer"
         onclick="openModal()"
     >
         + Add Course
@@ -52,7 +52,6 @@
                 <td class="py-3 px-4 text-gray-400">N/A</td>
                 <td class="py-3 px-4 text-gray-400">N/A</td>
                 <td class="py-3 px-4 text-gray-700 flex items-center space-x-2">
-
                     <form action="{{ url_for('get_course_detail', course_id=course.id) }}">
                         <button type="submit" title="View">
                             <i
@@ -60,10 +59,16 @@
                             ></i>
                         </button>
                     </form>
-                    <button title="Edit">
-                        <i
-                            class="fa-solid fa-pen-to-square text-blue-500 hover:text-blue-300 text-2xl"
-                        ></i>
+                    <button
+                        title="Edit"
+                        class="text-blue-500 hover:text-blue-700"
+                        data-id="{{ course.id }}"
+                        data-code="{{ course.code }}"
+                        data-name="{{ course.name }}"
+                        data-description="{{ course.description }}"
+                        onclick="openEditModal(this)"
+                    >
+                        <i class="fa-solid fa-pen-to-square text-2xl"></i>
                     </button>
                     <form
                         action="{{ url_for('delete_course', course_id=course.id) }}"
@@ -78,16 +83,13 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="5" class="py-3 px-4 text-center text-gray-700">
-                    No courses found.
-                </td>
+                <td colspan="5" class="py-3 px-4 text-center text-gray-700">No courses found.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-{% include "courses/modal_course_form.html" %}
-
+{% include "courses/modal_course_form.html" %} {% include "courses/modal_edit_course_form.html" %}
 {% endblock %} {% block scripts %}
 <script>
     function openModal() {

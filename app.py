@@ -81,6 +81,16 @@ def post_teacher():
         flash('Teacher added successfully!')
         return redirect(url_for('get_teachers'))
     
+@app.route('/teachers/<int:teacher_id>', methods=['POST'])
+def update_teacher(teacher_id):
+    teacher = Teacher.query.get_or_404(teacher_id)
+    if request.method == 'POST':
+        teacher.name = request.form.get('name')
+        teacher.email = request.form.get('email')
+        db.session.commit()
+        flash('Teacher updated successfully!')
+        return redirect(url_for('get_teachers'))
+    
 @app.route('/teacher/delete/<int:teacher_id>', methods=['POST'])
 def delete_teacher(teacher_id):
     teacher = Teacher.query.get_or_404(teacher_id)
@@ -111,6 +121,17 @@ def post_student():
         db.session.add(new_student)
         db.session.commit()
         flash('Student added successfully!')
+        return redirect(url_for('get_students'))
+
+@app.route('/students/<int:student_id>', methods=['POST'])
+def update_student(student_id):
+    student = Student.query.get_or_404(student_id)
+    if request.method == 'POST':
+        student.name = request.form.get('name')
+        student.email = request.form.get('email')
+        student.admission_date = request.form.get('admission_date')
+        db.session.commit()
+        flash('Student updated successfully!')
         return redirect(url_for('get_students'))
 
 @app.route('/student/delete/<int:student_id>', methods=['POST'])
