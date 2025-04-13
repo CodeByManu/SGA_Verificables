@@ -37,7 +37,9 @@
             <tr>
                 <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Name</th>
                 <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Email</th>
-                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Admission Year</th>
+                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">
+                    Admission Year
+                </th>
                 <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">
                     N° Courses
                 </th>
@@ -59,10 +61,16 @@
                             ></i>
                         </button>
                     </form>
-                    <button title="Edit">
-                        <i
-                            class="fa-solid fa-pen-to-square text-blue-500 hover:text-blue-300 text-2xl"
-                        ></i>
+                    <button
+                        title="Edit"
+                        class="text-blue-500 hover:text-blue-700"
+                        data-id="{{ student.id }}"
+                        data-name="{{ student.name }}"
+                        data-email="{{ student.email }}"
+                        data-admission="{{ student.admission_date }}"
+                        onclick="openEditStudentModal(this)"
+                    >
+                        <i class="fa-solid fa-pen-to-square text-2xl"></i>
                     </button>
                     <form
                         action="{{ url_for('delete_student', student_id=student.id) }}"
@@ -77,15 +85,14 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="5" class="py-3 px-4 text-center text-gray-700">
-                    No students found.
-                </td>
+                <td colspan="5" class="py-3 px-4 text-center text-gray-700">No students found.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
 {% include 'students/modal_student_form.html' %}
+{% include 'students/modal_edit_student_form.html' %}
 
 {% endblock %} {% block scripts %}
 <script>
