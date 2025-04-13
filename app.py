@@ -28,7 +28,7 @@ def get_course_detail(course_id):
     return render_template('courses/course_detail.html', course=course, active_page='courses')
 
 @app.route('/courses', methods=['POST'])
-def post_course():
+def create_course():
     if request.method == 'POST':
         code = request.form.get('code')
         name = request.form.get('name')
@@ -71,7 +71,7 @@ def get_teacher_detail(teacher_id):
     return render_template('teachers/teacher_detail.html', teacher=teacher, active_page='teachers')
 
 @app.route('/teachers', methods=['POST'])
-def post_teacher():
+def create_teacher():
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')
@@ -102,7 +102,7 @@ def get_student_detail(student_id):
     return render_template('students/student_detail.html', student=student, active_page='students')
 
 @app.route('/students', methods=['POST'])
-def post_student():
+def create_student():
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')
