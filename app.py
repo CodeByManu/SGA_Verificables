@@ -121,5 +121,34 @@ def delete_student(student_id):
     flash('Student deleted successfully.')
     return redirect(url_for('get_students'))
 
+
+#PERIODS
+
+@app.route('/periods/<int:period_id>', methods=['GET'])
+def get_period_detail(period_id):
+    period = Period.query.get_or_404(period_id)
+    return render_template('periods/period_detail.html', period=period, active_page='courses')
+
+@app.route('/courses/<int:course_id>/periods', methods=['POST'])
+def create_period(course_id):
+    course = Course.query.get_or_404(course_id)
+    period_value = request.form.get('period')
+    if period_value:
+        new_period = Period(course_id=course.id, period=period_value)
+        db.session.add(new_period)
+        db.session.commit()
+        flash('Periodo agregado correctamente.')
+    else:
+        flash('Debes ingresar un nombre de periodo.')
+    return redirect(url_for('get_course_detail', course_id=course.id))
+
+@app.route('/courses/<int:course_id>/periods/<int:period_id>/delete', methods=['POST'])
+def delete_period(course_id, period_id):
+    period = Period.query.get_or_404(period_id)
+    db.session.delete(period)
+    db.session.commit()
+    flash('Periodo eliminado correctamente.')
+    return redirect(url_for('get_course_detail', course_id=course_id))
+
 if __name__ == '__main__':
     app.run(debug=True)
