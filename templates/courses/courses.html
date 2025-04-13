@@ -1,6 +1,6 @@
 <!-- templates/courses.html -->
 {% extends "base.html" %} {% block content %}
-<h2 class="text-2xl font-bold text-gray-800 mb-4">Lista de Cursos</h2>
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Courses List</h2>
 
 <div class="flex items-center justify-between mb-4">
     <div class="relative">
@@ -24,8 +24,8 @@
     </div>
 
     <a
-        href="{{ url_for('post_course') }}"
-        class="bg-teal-400 text-white px-4 py-2 rounded-lg hover:bg-teal-500 transition-colors"
+        class="bg-teal-400 text-white px-4 py-2 rounded-lg hover:bg-teal-500 transition-colors cursor-pointer "
+        onclick="openModal()"
     >
         + Add Course
     </a>
@@ -41,7 +41,7 @@
                 <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">
                     N° Students
                 </th>
-                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Action</th>
+                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Actions</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
@@ -52,23 +52,51 @@
                 <td class="py-3 px-4 text-gray-400">N/A</td>
                 <td class="py-3 px-4 text-gray-400">N/A</td>
                 <td class="py-3 px-4 text-gray-700 flex items-center space-x-2">
-                    <button title="Editar">
-                        <i class="fa-solid fa-pen-to-square text-blue-500 hover:text-blue-300 text-2xl"></i>
+
+                    <form action="{{ url_for('get_course_detail', course_id=course.id) }}">
+                        <button type="submit" title="View">
+                            <i
+                                class="fa-solid fa-eye text-green-500 hover:text-green-300 text-2xl"
+                            ></i>
+                        </button>
+                    </form>
+                    <button title="Edit">
+                        <i
+                            class="fa-solid fa-pen-to-square text-blue-500 hover:text-blue-300 text-2xl"
+                        ></i>
                     </button>
-                    <button title="Eliminar">
-                        <i class="fa fa-trash-can text-red-500 hover:text-red-300 text-2xl"></i>
-                    </button>
+                    <form
+                        action="{{ url_for('delete_course', course_id=course.id) }}"
+                        method="POST"
+                        onsubmit="return confirm('Are you sure you want to remove {{course.name}}?');"
+                    >
+                        <button type="submit" title="Eliminate">
+                            <i class="fa fa-trash-can text-red-500 hover:text-red-300 text-2xl"></i>
+                        </button>
+                    </form>
                 </td>
             </tr>
             {% else %}
             <tr>
                 <td colspan="5" class="py-3 px-4 text-center text-gray-700">
-                    No hay cursos registrados.
+                    No courses found.
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+{% include "courses/modal_course_form.html" %}
 
+{% endblock %} {% block scripts %}
+<script>
+    function openModal() {
+        document.getElementById('modal').classList.remove('hidden');
+        console.log('Modal opened');
+    }
+
+    function closeModal() {
+        document.getElementById('modal').classList.add('hidden');
+    }
+</script>
 {% endblock %}

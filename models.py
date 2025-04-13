@@ -72,7 +72,7 @@ class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    admission_date = db.Column(db.Date, nullable=False)
+    admission_date = db.Column(db.Integer, nullable=False)
 
     student_sections = db.relationship('StudentSection', back_populates='student', cascade="all, delete")
     grades = db.relationship('Grade', back_populates='student', cascade="all, delete")

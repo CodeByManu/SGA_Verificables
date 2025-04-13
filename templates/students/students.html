@@ -1,0 +1,101 @@
+{% extends "base.html" %} {% block content %}
+
+<h2 class="text-2xl font-bold text-gray-800 mb-4">Students List</h2>
+
+<div class="flex items-center justify-between mb-4">
+    <div class="relative">
+        <input
+            type="search"
+            placeholder="Search..."
+            class="border border-gray-300 rounded-lg pl-8 pr-4 py-2 focus:outline-none focus:border-teal-400 transition-colors"
+        />
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="text-gray-600 absolute w-4 h-4 -translate-y-2/4 left-3 top-2/4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+        >
+            <path
+                fill-rule="evenodd"
+                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                clip-rule="evenodd"
+            />
+        </svg>
+    </div>
+
+    <a
+        class="bg-teal-400 text-white px-4 py-2 rounded-lg hover:bg-teal-500 transition-colors cursor-pointer"
+        onclick="openModal()"
+    >
+        + Add Student
+    </a>
+</div>
+
+<div class="overflow-x-auto rounded-lg shadow-lg">
+    <table class="min-w-full border-collapse">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Name</th>
+                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Email</th>
+                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Admission Year</th>
+                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">
+                    N° Courses
+                </th>
+                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for student in students %}
+            <tr>
+                <td class="py-3 px-4 text-gray-700">{{ student.name }}</td>
+                <td class="py-3 px-4 text-gray-700">{{ student.email }}</td>
+                <td class="py-3 px-4 text-gray-700">{{ student.admission_date }}</td>
+                <td class="py-3 px-4 text-gray-700">N/A</td>
+                <td class="py-3 px-4 text-gray-700 flex items-center space-x-2">
+                    <form action="{{ url_for('get_student_detail', student_id=student.id) }}">
+                        <button type="submit" title="View">
+                            <i
+                                class="fa-solid fa-eye text-green-500 hover:text-green-300 text-2xl"
+                            ></i>
+                        </button>
+                    </form>
+                    <button title="Edit">
+                        <i
+                            class="fa-solid fa-pen-to-square text-blue-500 hover:text-blue-300 text-2xl"
+                        ></i>
+                    </button>
+                    <form
+                        action="{{ url_for('delete_student', student_id=student.id) }}"
+                        method="POST"
+                        onsubmit="return confirm('Are you sure you want to remove {{student.name}}?');"
+                    >
+                        <button type="submit" title="Eliminate">
+                            <i class="fa fa-trash-can text-red-500 hover:text-red-300 text-2xl"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="py-3 px-4 text-center text-gray-700">
+                    No students found.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include 'students/modal_student_form.html' %}
+
+{% endblock %} {% block scripts %}
+<script>
+    function openModal() {
+        document.getElementById('modal').classList.remove('hidden');
+        console.log('Modal opened');
+    }
+
+    function closeModal() {
+        document.getElementById('modal').classList.add('hidden');
+    }
+</script>
+{% endblock %}

@@ -9,16 +9,15 @@
             <a href="{{ url_for('get_courses') }}" class="{{ link_class('courses') }}"> Courses </a>
         </li>
         <li>
-            <a href="{{ url_for('get_students') }}" class="{{ link_class('students') }}">
-                Students
-            </a>
-        </li>
-        <li>
             <a href="{{ url_for('get_teachers') }}" class="{{ link_class('teachers') }}">
                 Teachers
             </a>
         </li>
+        <li>
+            <a href="{{ url_for('get_students') }}" class="{{ link_class('students') }}">
+                Students
+            </a>
+        </li>
     </ul>
-
-    <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+    <div class="w-10 h-10 bg-gray-400 rounded-full"></div>
 </nav>
