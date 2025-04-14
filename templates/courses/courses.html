@@ -37,10 +37,6 @@
             <tr>
                 <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Code</th>
                 <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Name</th>
-                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Teacher</th>
-                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">
-                    N° Students
-                </th>
                 <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Actions</th>
             </tr>
         </thead>
@@ -49,8 +45,6 @@
             <tr>
                 <td class="py-3 px-4 text-gray-700">{{ course.code }}</td>
                 <td class="py-3 px-4 text-gray-700">{{ course.name }}</td>
-                <td class="py-3 px-4 text-gray-400">N/A</td>
-                <td class="py-3 px-4 text-gray-400">N/A</td>
                 <td class="py-3 px-4 text-gray-700 flex items-center space-x-2">
                     <form action="{{ url_for('get_course_detail', course_id=course.id) }}">
                         <button type="submit" title="View">
