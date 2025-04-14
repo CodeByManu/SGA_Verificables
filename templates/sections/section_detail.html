@@ -56,9 +56,43 @@
     </div>
 </div>
 
+<div class="mt-6">
+    <div class="flex justify-between items-center mb-2">
+        <h3 class="text-xl font-semibold text-gray-800"></h3>
+        <a
+            class="bg-teal-400 text-white px-3 py-1 rounded hover:bg-teal-500 cursor-pointer"
+            onclick="openStudentModal()"
+        >
+            + Add Students
+        </a>
+    </div>
+    <div class="overflow-x-auto rounded-lg shadow-lg">
+        <table class="min-w-full border-collapse">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Students</th>
+                    <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Email</th>
+                    <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Admision Year</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ss in section.student_sections %}
+                <tr class="border-t">
+                    <td class="px-4 py-2">{{ ss.student.name }}</td>
+                    <td class="px-4 py-2">{{ ss.student.email }}</td>
+                    <td class="px-4 py-2">{{ ss.student.admission_date }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="2" class="px-4 py-2 text-center text-gray-500">No students in this section.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-
-
+{% include "sections/modal_add_students.html" %}
 
 {% include "sections/modal_add_evaluation.html" %}
 {% endblock %}
@@ -68,7 +102,12 @@
     function openModal() {
         document.getElementById('modal').classList.remove('hidden');
     }
-
+    function openStudentModal() {
+        document.getElementById('modal-student').classList.remove('hidden');
+    }
+    function closeStudentModal() {
+    document.getElementById('modal-student').classList.add('hidden');
+    }
     function closeModal() {
         document.getElementById('modal').classList.add('hidden');
     }

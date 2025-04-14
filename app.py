@@ -176,7 +176,16 @@ def delete_period(course_id, period_id):
 @app.route('/sections/<int:section_id>', methods=['GET'])
 def get_section_detail(section_id):
     section = Section.query.get_or_404(section_id)
-    return render_template('sections/section_detail.html', section=section, active_page='courses')
+
+    current_ids = [ss.student_id for ss in section.student_sections]
+    available_students = Student.query.filter(Student.id.notin_(current_ids)).all()
+
+    return render_template(
+        'sections/section_detail.html',
+        section=section,
+        available_students=available_students,
+        active_page='courses'
+    )
 
 @app.route('/periods/<int:period_id>/sections', methods=['POST'])
 def create_section(period_id):
@@ -240,6 +249,24 @@ def delete_evaluation(section_id, evaluation_id):
     db.session.commit()
     flash('Evaluación eliminada correctamente.')
     return redirect(url_for('get_section_detail', section_id=section_id))
+
+#STUDENT SECTIONS
+@app.route('/sections/<int:section_id>/add_students', methods=['POST'])
+def add_students_to_section(section_id):
+    section = Section.query.get_or_404(section_id)
+    selected_ids = request.form.getlist('student_ids')
+
+    for student_id in selected_ids:
+        exists = StudentSection.query.filter_by(
+            student_id=student_id,
+            section_id=section.id
+        ).first()
+        if not exists:
+            db.session.add(StudentSection(student_id=student_id, section_id=section.id))
+
+    db.session.commit()
+    flash('Estudiantes agregados correctamente.')
+    return redirect(url_for('get_section_detail', section_id=section.id))
 
 
 if __name__ == '__main__':

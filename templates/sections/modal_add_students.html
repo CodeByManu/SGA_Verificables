@@ -1,0 +1,44 @@
+<div id="modal-student" class="fixed inset-0 flex items-start justify-center z-50 hidden">
+    <div class="absolute inset-0 bg-black opacity-50" onclick="closeStudentModal('modal-student')"></div>
+    <div class="bg-white rounded-lg p-6 z-10 relative w-full max-w-3xl mt-24">
+        <h3 class="text-xl font-bold mb-4">Add Students</h3>
+
+        <form method="POST" action="{{ url_for('add_students_to_section', section_id=section.id) }}">
+            <div class="overflow-x-auto max-h-80 overflow-y-auto border rounded">
+                <table class="min-w-full text-sm">  
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-2 text-left">Name</th>
+                            <th class="px-4 py-2 text-left">Email</th>
+                            <th class="px-4 py-2 text-center">Select</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in available_students %}
+                        <tr class="border-t">
+                            <td class="px-4 py-2">{{ student.name }}</td>
+                            <td class="px-4 py-2">{{ student.email }}</td>
+                            <td class="px-4 py-2 text-center">
+                                <input type="checkbox" name="student_ids" value="{{ student.id }}">
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="px-4 py-2 text-center text-gray-500">No available students.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded" onclick="closeStudentModal('modal-student')">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded">
+                    Add Selected
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
