@@ -52,7 +52,8 @@ class Section(db.Model):
     period_id = db.Column(db.Integer, db.ForeignKey('periods.id'), nullable=False)
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'), nullable=False)
     section_number = db.Column(db.String(10), nullable=False)
-
+    evaluation_weight_type= db.Column(db.String(50))
+    
     period = db.relationship('Period', back_populates='sections')
     teacher = db.relationship('Teacher', back_populates='sections')
     student_sections = db.relationship('StudentSection', back_populates='section', cascade="all, delete")

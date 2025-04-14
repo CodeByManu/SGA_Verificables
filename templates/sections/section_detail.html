@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Botón para volver al período -->
+<div class="mb-4">
+    <a href="{{ url_for('get_period_detail', period_id=section.period.id) }}"
+       class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded inline-flex items-center"
+    >
+        ← Back to {{ section.period.period }}
+    </a>
+</div>
+
+<!-- Título principal con sección y profesor -->
+<h2 class="text-2xl font-bold text-gray-800 mb-4">
+    Section {{ section.section_number }} – {{ section.teacher.name }}
+</h2>
+
+<!-- Información adicional -->
+<div class="space-y-2 text-gray-600">
+    <p><strong>Period:</strong> {{ section.period.period }}</p>
+    <p><strong>Course:</strong> {{ section.period.course.name }}</p>
+    <p><strong>Teacher Email:</strong> {{ section.teacher.email }}</p>
+</div>
+
+{% endblock %}

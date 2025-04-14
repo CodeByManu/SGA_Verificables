@@ -148,7 +148,8 @@ def delete_student(student_id):
 @app.route('/periods/<int:period_id>', methods=['GET'])
 def get_period_detail(period_id):
     period = Period.query.get_or_404(period_id)
-    return render_template('periods/period_detail.html', period=period, active_page='courses')
+    teachers = Teacher.query.all()
+    return render_template('periods/period_detail.html', period=period, teachers=teachers, active_page='courses')
 
 @app.route('/courses/<int:course_id>/periods', methods=['POST'])
 def create_period(course_id):
@@ -170,6 +171,45 @@ def delete_period(course_id, period_id):
     db.session.commit()
     flash('Periodo eliminado correctamente.')
     return redirect(url_for('get_course_detail', course_id=course_id))
+
+#SECTION
+@app.route('/sections/<int:section_id>', methods=['GET'])
+def get_section_detail(section_id):
+    section = Section.query.get_or_404(section_id)
+    return render_template('sections/section_detail.html', section=section, active_page='courses')
+
+@app.route('/periods/<int:period_id>/sections', methods=['POST'])
+def create_section(period_id):
+    period = Period.query.get_or_404(period_id)
+    section_number = request.form.get('section_number')
+    teacher_id = request.form.get('teacher_id')
+    evaluation_weight_type = request.form.get('evaluation_weight_type')
+
+    teacher = Teacher.query.get(teacher_id)
+    if section_number and teacher:
+        new_section = Section(
+            period_id=period.id,
+            section_number=section_number,
+            teacher_id=teacher.id,
+            evaluation_weight_type=evaluation_weight_type
+            
+        )
+        db.session.add(new_section)
+        db.session.commit()
+        flash('Sección creada correctamente.')
+    else:
+        flash('Debes ingresar todos los campos requeridos.')
+    return redirect(url_for('get_period_detail', period_id=period.id))
+
+
+@app.route('/periods/<int:period_id>/sections/<int:section_id>/delete', methods=['POST'])
+def delete_section(period_id, section_id):
+    section = Section.query.get_or_404(section_id)
+    db.session.delete(section)
+    db.session.commit()
+    flash('Sección eliminada correctamente.')
+    return redirect(url_for('get_period_detail', period_id=period_id))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
