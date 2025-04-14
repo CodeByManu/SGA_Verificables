@@ -1,98 +1,212 @@
 <!-- templates/courses.html -->
 {% extends "base.html" %} {% block content %}
-<h2 class="text-2xl font-bold text-gray-800 mb-4">Courses List</h2>
 
-<div class="flex items-center justify-between mb-4">
-    <div class="relative">
-        <input
-            type="search"
-            placeholder="Search..."
-            class="border border-gray-300 rounded-lg pl-8 pr-4 py-2 focus:outline-none focus:border-teal-400 transition-colors"
-        />
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="text-gray-600 absolute w-4 h-4 -translate-y-2/4 left-3 top-2/4"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-        >
-            <path
-                fill-rule="evenodd"
-                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                clip-rule="evenodd"
-            />
-        </svg>
+<div class="bg-white p-6 rounded-lg shadow-md mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div>
+            <h2 class="text-3xl font-bold text-teal-700">
+                Listado de Cursos
+            </h2>
+            <div class="text-sm text-gray-500 mt-2">
+                Administra la información de los cursos disponibles en el sistema.
+            </div>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <button
+                class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                onclick="openModal()"
+            >
+                <i class="fas fa-plus mr-2"></i> Agregar curso
+            </button>
+        </div>
     </div>
 
-    <a
-        class="bg-teal-400 text-white px-4 py-2 rounded-lg hover:bg-teal-500 transition-colors cursor-pointer"
-        onclick="openModal()"
-    >
-        + Add Course
-    </a>
+    <!-- Estadísticas -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-lg shadow">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="text-3xl font-bold text-teal-700">{{ courses|length }}</div>
+                    <div class="text-sm text-gray-600">Total de cursos</div>
+                </div>
+                <div class="bg-teal-200 p-2 rounded-full">
+                    <i class="fas fa-book text-teal-500"></i>
+                </div>
+            </div>
+        </div>
+        
+        {% set periods_count = namespace(count=0) %}
+        {% set sections_count = namespace(count=0) %}
+        {% for course in courses %}
+            {% set periods_count.count = periods_count.count + course.periods|length %}
+            {% for period in course.periods %}
+                {% set sections_count.count = sections_count.count + period.sections|length %}
+            {% endfor %}
+        {% endfor %}
+        
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg shadow">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="text-3xl font-bold text-blue-700">{{ periods_count.count }}</div>
+                    <div class="text-sm text-gray-600">Periodos activos</div>
+                </div>
+                <div class="bg-blue-200 p-2 rounded-full">
+                    <i class="fas fa-calendar-alt text-blue-500"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg shadow">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="text-3xl font-bold text-purple-700">{{ sections_count.count }}</div>
+                    <div class="text-sm text-gray-600">Secciones totales</div>
+                </div>
+                <div class="bg-purple-200 p-2 rounded-full">
+                    <i class="fas fa-users text-purple-500"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Búsqueda y filtros -->
+    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <div class="relative">
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Buscar curso..."
+                        class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    />
+                    <i class="fas fa-search text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="overflow-x-auto rounded-lg shadow-lg">
-    <table class="min-w-full border-collapse">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Code</th>
-                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Name</th>
-                <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Actions</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-            {% for course in courses %}
-            <tr>
-                <td class="py-3 px-4 text-gray-700">{{ course.code }}</td>
-                <td class="py-3 px-4 text-gray-700">{{ course.name }}</td>
-                <td class="py-3 px-4 text-gray-700 flex items-center space-x-2">
-                    <form action="{{ url_for('get_course_detail', course_id=course.id) }}">
-                        <button type="submit" title="View">
-                            <i
-                                class="fa-solid fa-eye text-green-500 hover:text-green-300 text-2xl"
-                            ></i>
-                        </button>
-                    </form>
-                    <button
-                        title="Edit"
-                        class="text-blue-500 hover:text-blue-700"
-                        data-id="{{ course.id }}"
-                        data-code="{{ course.code }}"
-                        data-name="{{ course.name }}"
-                        data-description="{{ course.description }}"
-                        onclick="openEditModal(this)"
-                    >
-                        <i class="fa-solid fa-pen-to-square text-2xl"></i>
-                    </button>
-                    <form
-                        action="{{ url_for('delete_course', course_id=course.id) }}"
-                        method="POST"
-                        onsubmit="return confirm('Are you sure you want to remove {{course.name}}?');"
-                    >
-                        <button type="submit" title="Eliminate">
-                            <i class="fa fa-trash-can text-red-500 hover:text-red-300 text-2xl"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5" class="py-3 px-4 text-center text-gray-700">No courses found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<!-- Lista de cursos -->
+<div class="bg-white p-6 rounded-lg shadow-md overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Código
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Nombre
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Periodos
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Acciones
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="coursesTableBody">
+                {% for course in courses %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-teal-100 text-teal-800">
+                            {{ course.code }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
+                                <span class="text-teal-600 font-semibold text-lg">{{ course.name[:1] | upper }}</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ course.name }}</div>
+                                {% if course.description %}
+                                <div class="text-sm text-gray-500">{{ course.description }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            {{ course.periods|length }} periodos
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-3">
+                            <a href="{{ url_for('get_course_detail', course_id=course.id) }}" class="text-green-500 hover:text-green-700">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button
+                                class="text-blue-500 hover:text-blue-700"
+                                data-id="{{ course.id }}"
+                                data-code="{{ course.code }}"
+                                data-name="{{ course.name }}"
+                                data-description="{{ course.description }}"
+                                onclick="openEditModal(this)"
+                            >
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <form
+                                action="{{ url_for('delete_course', course_id=course.id) }}"
+                                method="POST"
+                                onsubmit="return confirm('¿Está seguro que desea eliminar el curso {{course.name}}?');"
+                                class="inline"
+                            >
+                                <button type="submit" class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                        No se encontraron cursos
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-{% include "courses/modal_course_form.html" %} {% include "courses/modal_edit_course_form.html" %}
-{% endblock %} {% block scripts %}
+
+{% include "courses/modal_course_form.html" %}
+{% include "courses/modal_edit_course_form.html" %}
+{% endblock %} 
+
+{% block scripts %}
 <script>
     function openModal() {
         document.getElementById('modal').classList.remove('hidden');
-        console.log('Modal opened');
     }
 
     function closeModal() {
         document.getElementById('modal').classList.add('hidden');
     }
+    
+    // Búsqueda en tiempo real
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#coursesTableBody tr');
+                
+                rows.forEach(row => {
+                    const code = row.querySelector('td:first-child')?.textContent.toLowerCase() || '';
+                    const name = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+                    
+                    if (code.includes(searchTerm) || name.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
 </script>
 {% endblock %}

@@ -1,0 +1,42 @@
+<div id="tab-students" class="tab-content hidden">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-purple-700">
+                <i class="fas fa-user-graduate mr-2"></i> Estudiantes
+            </h3>
+            <button
+                class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                onclick="openStudentModal()"
+            >
+                <i class="fas fa-plus mr-2"></i> Agregar estudiantes
+            </button>
+        </div>
+
+        {% if section.student_sections %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for ss in section.student_sections %}
+            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-center mb-3">
+                    <div class="bg-purple-100 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-purple-500"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-gray-800">{{ ss.student.name }}</h5>
+                        <div class="text-sm text-gray-500">{{ ss.student.email }}</div>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-600">
+                    <div><span class="font-medium">Año de admisión:</span> {{ ss.student.admission_date }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-purple-50 p-6 rounded-lg text-center">
+            <div class="text-purple-500 mb-2"><i class="fas fa-info-circle text-3xl"></i></div>
+            <p class="text-gray-700">No hay estudiantes en esta sección.</p>
+            <p class="text-gray-600 text-sm mt-2">Haga clic en "Agregar estudiantes" para comenzar.</p>
+        </div>
+        {% endif %}
+    </div>
+</div> 
