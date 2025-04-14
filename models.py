@@ -43,7 +43,6 @@ class Period(db.Model):
 
     course = db.relationship('Course', back_populates='periods')
     sections = db.relationship('Section', back_populates='period', cascade="all, delete")
-    evaluations = db.relationship('Evaluation', back_populates='period', cascade="all, delete")
 
 
 class Section(db.Model):
@@ -53,10 +52,11 @@ class Section(db.Model):
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'), nullable=False)
     section_number = db.Column(db.String(10), nullable=False)
     evaluation_weight_type= db.Column(db.String(50))
-    
+
     period = db.relationship('Period', back_populates='sections')
     teacher = db.relationship('Teacher', back_populates='sections')
     student_sections = db.relationship('StudentSection', back_populates='section', cascade="all, delete")
+    evaluations = db.relationship('Evaluation', back_populates='section', cascade="all, delete")
 
 
 class Teacher(db.Model):
@@ -92,11 +92,11 @@ class StudentSection(db.Model):
 class Evaluation(db.Model):
     __tablename__ = "evaluations"
     id = db.Column(db.Integer, primary_key=True)
-    period_id = db.Column(db.Integer, db.ForeignKey('periods.id'), nullable=False)
+    section_id = db.Column(db.Integer, db.ForeignKey('sections.id'), nullable=False)
     tasks_weight_type = db.Column(db.String(50))
     weight = db.Column(db.Float)
 
-    period = db.relationship('Period', back_populates='evaluations')
+    section = db.relationship('Section', back_populates='evaluations')
     tasks = db.relationship('Task', back_populates='evaluation', cascade="all, delete")
 
 
