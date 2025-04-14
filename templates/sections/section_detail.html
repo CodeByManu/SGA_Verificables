@@ -1,115 +1,87 @@
 {% extends "base.html" %}
 {% block content %}
 
-
-<h2 class="text-2xl font-bold text-gray-800 mb-4">
-    Section {{ section.section_number }} – {{ section.teacher.name }} 
-</h2>
-
-<div class="flex justify-between items-center mb-4">
-    <a href="{{ url_for('get_period_detail', period_id=section.period.id) }}"
-        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded inline-flex items-center">          
-             ← Back to {{ section.period.period }}
-    </a>
-    <a class="bg-teal-400 text-white px-4 py-2 rounded-lg hover:bg-teal-500 transition-colors cursor-pointer"
-    onclick="openModal()">
-     + Add Evaluation type
- </a>
-</div>
-
-<div class="mt-6">
-    <div class="overflow-x-auto rounded-lg shadow-lg">
-        <table class="min-w-full border-collapse">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Evaluations</th>
-                    <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Type</th>
-                    <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Value</th>
-                    <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for evaluation in section.evaluations %}
-                <tr class="border-t">
-                    <td class="px-4 py-2">{{ evaluation.name }}</td>
-                    <td class="px-4 py-2">{{ evaluation.tasks_weight_type }}</td>
-                    <td class="px-4 py-2">{{ evaluation.weight }}</td>
-                    <td class="px-4 py-2">
-                        <form
-                            method="POST"
-                            action="{{ url_for('delete_evaluation', section_id=section.id, evaluation_id=evaluation.id) }}"
-                            onsubmit="return confirm('Are you sure you want to delete this evaluation?');"
-                        >
-                            <button title="Delete" type="submit">
-                                <i class="fa fa-trash-can text-red-500 hover:text-red-300 text-lg"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="4" class="px-4 py-2 text-center text-gray-500">No evaluations added.</td>
-                </tr>
-                {% endfor %}
-            </tbody>            
-        </table>
-    </div>
-</div>
-
-<div class="mt-6">
-    <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xl font-semibold text-gray-800"></h3>
-        <a
-            class="bg-teal-400 text-white px-3 py-1 rounded hover:bg-teal-500 cursor-pointer"
-            onclick="openStudentModal()"
-        >
-            + Add Students
+<div class="bg-white p-6 rounded-lg shadow-md mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div>
+            <h2 class="text-3xl font-bold text-teal-700">
+                Sección {{ section.section_number }}
+            </h2>
+            <div class="flex items-center mt-2 text-gray-600">
+                <i class="fas fa-chalkboard-teacher mr-2"></i>
+                <span class="font-medium">{{ section.teacher.name }}</span>
+                <span class="mx-2">|</span>
+                <i class="fas fa-book mr-2"></i>
+                <span>{{ section.period.course.name }} - {{ section.period.period }}</span>
+            </div>
+        </div>
+        <a href="{{ url_for('get_period_detail', period_id=section.period.id) }}"
+            class="mt-4 md:mt-0 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg inline-flex items-center transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Volver al periodo
         </a>
     </div>
-    <div class="overflow-x-auto rounded-lg shadow-lg">
-        <table class="min-w-full border-collapse">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Students</th>
-                    <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Email</th>
-                    <th class="py-3 px-4 text-left text-gray-600 uppercase tracking-wide">Admision Year</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ss in section.student_sections %}
-                <tr class="border-t">
-                    <td class="px-4 py-2">{{ ss.student.name }}</td>
-                    <td class="px-4 py-2">{{ ss.student.email }}</td>
-                    <td class="px-4 py-2">{{ ss.student.admission_date }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="2" class="px-4 py-2 text-center text-gray-500">No students in this section.</td>
-                </tr>
+
+    <!-- Resumen general -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-lg shadow flex flex-col items-center justify-center">
+            <div class="text-4xl font-bold text-teal-600 mb-2">{{ section.evaluations|length }}</div>
+            <div class="text-gray-700">Evaluaciones</div>
+        </div>
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg shadow flex flex-col items-center justify-center">
+            {% set task_count = namespace(count=0) %}
+            {% for evaluation in section.evaluations %}
+                {% for task in evaluation.tasks %}
+                    {% set task_count.count = task_count.count + 1 %}
                 {% endfor %}
-            </tbody>
-        </table>
+            {% endfor %}
+            <div class="text-4xl font-bold text-blue-600 mb-2">{{ task_count.count }}</div>
+            <div class="text-gray-700">Tareas</div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg shadow flex flex-col items-center justify-center">
+            <div class="text-4xl font-bold text-purple-600 mb-2">{{ section.student_sections|length }}</div>
+            <div class="text-gray-700">Estudiantes</div>
+        </div>
     </div>
 </div>
 
-{% include "sections/modal_add_students.html" %}
+<!-- Pestañas -->
+<div class="mb-6">
+    <ul class="flex border-b">
+        <li class="mr-1" id="tab-evaluations-btn">
+            <a class="bg-white inline-block py-2 px-4 text-teal-500 hover:text-teal-800 font-semibold border-l border-t border-r rounded-t cursor-pointer tab-active" onclick="showTab('evaluations')">
+                <i class="fas fa-clipboard-check mr-2"></i> Evaluaciones
+            </a>
+        </li>
+        <li class="mr-1" id="tab-tasks-btn">
+            <a class="bg-white inline-block py-2 px-4 text-blue-500 hover:text-blue-800 font-semibold border-l border-t border-r rounded-t cursor-pointer" onclick="showTab('tasks')">
+                <i class="fas fa-tasks mr-2"></i> Tareas
+            </a>
+        </li>
+        <li class="mr-1" id="tab-students-btn">
+            <a class="bg-white inline-block py-2 px-4 text-purple-500 hover:text-purple-800 font-semibold border-l border-t border-r rounded-t cursor-pointer" onclick="showTab('students')">
+                <i class="fas fa-user-graduate mr-2"></i> Estudiantes
+            </a>
+        </li>
+        <li class="mr-1" id="tab-analytics-btn">
+            <a class="bg-white inline-block py-2 px-4 text-green-500 hover:text-green-800 font-semibold border-l border-t border-r rounded-t cursor-pointer" onclick="showTab('analytics')">
+                <i class="fas fa-chart-bar mr-2"></i> Analítica
+            </a>
+        </li>
+    </ul>
+</div>
 
+<!-- Incluir contenido de pestañas desde archivos parciales -->
+{% include "sections/components/_tab_evaluations.html" %}
+{% include "sections/components/_tab_tasks.html" %}
+{% include "sections/components/_tab_students.html" %}
+{% include "sections/components/_tab_analytics.html" %}
+
+<!-- Incluir modales -->
+{% include "sections/modal_add_students.html" %}
 {% include "sections/modal_add_evaluation.html" %}
+{% include "sections/modal_add_task.html" %}
 {% endblock %}
 
 {% block scripts %}
-<script>
-    function openModal() {
-        document.getElementById('modal').classList.remove('hidden');
-    }
-    function openStudentModal() {
-        document.getElementById('modal-student').classList.remove('hidden');
-    }
-    function closeStudentModal() {
-    document.getElementById('modal-student').classList.add('hidden');
-    }
-    function closeModal() {
-        document.getElementById('modal').classList.add('hidden');
-    }
-</script>
+{% include "sections/components/_section_scripts.html" %}
 {% endblock %}

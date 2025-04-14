@@ -1,0 +1,216 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Funciones para los modales
+    function openModal() {
+        document.getElementById('modal').classList.remove('hidden');
+    }
+    function openStudentModal() {
+        document.getElementById('modal-student').classList.remove('hidden');
+    }
+    function closeStudentModal() {
+        document.getElementById('modal-student').classList.add('hidden');
+    }
+    function closeModal() {
+        document.getElementById('modal').classList.add('hidden');
+    }
+    function openTaskModal() {
+        document.getElementById('modal-task').classList.remove('hidden');
+    }
+    function closeTaskModal() {
+        document.getElementById('modal-task').classList.add('hidden');
+    }
+
+    // Funciones para las pestañas
+    function showTab(tabId) {
+        // Ocultar todos los contenidos
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.add('hidden');
+        });
+        
+        // Mostrar el contenido seleccionado
+        document.getElementById('tab-' + tabId).classList.remove('hidden');
+        
+        // Actualizar estilos de botones
+        document.querySelectorAll('ul.flex li a').forEach(button => {
+            button.classList.remove('tab-active');
+        });
+        document.getElementById('tab-' + tabId + '-btn').querySelector('a').classList.add('tab-active');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Preparar datos para gráficos
+        const evaluationData = {
+            labels: [
+                {% for evaluation in section.evaluations %}
+                    "{{ evaluation.name }}",
+                {% endfor %}
+            ],
+            weights: [
+                {% for evaluation in section.evaluations %}
+                    {{ evaluation.weight }},
+                {% endfor %}
+            ],
+            backgroundColor: [
+                'rgba(20, 184, 166, 0.7)',
+                'rgba(56, 189, 248, 0.7)',
+                'rgba(168, 85, 247, 0.7)',
+                'rgba(236, 72, 153, 0.7)',
+                'rgba(249, 115, 22, 0.7)',
+                'rgba(234, 179, 8, 0.7)'
+            ]
+        };
+
+        // Gráfico de pesos de evaluación
+        if (document.getElementById('evaluationWeightChart')) {
+            const evalCtx = document.getElementById('evaluationWeightChart').getContext('2d');
+            new Chart(evalCtx, {
+                type: 'pie',
+                data: {
+                    labels: evaluationData.labels,
+                    datasets: [{
+                        data: evaluationData.weights,
+                        backgroundColor: evaluationData.backgroundColor,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Organizar tareas por mes para gráfico
+        const tasksByMonth = {
+            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            counts: Array(12).fill(0)
+        };
+
+        {% for evaluation in section.evaluations %}
+            {% for task in evaluation.tasks %}
+                {% if task.date %}
+                    const month{{ task.id }} = new Date("{{ task.date }}").getMonth();
+                    tasksByMonth.counts[month{{ task.id }}]++;
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+        // Gráfico de tareas por mes
+        if (document.getElementById('tasksByMonthChart')) {
+            const taskCtx = document.getElementById('tasksByMonthChart').getContext('2d');
+            new Chart(taskCtx, {
+                type: 'bar',
+                data: {
+                    labels: tasksByMonth.labels,
+                    datasets: [{
+                        label: 'Número de tareas',
+                        data: tasksByMonth.counts,
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Inicializar el calendario
+        function initCalendar() {
+            const calendarEl = document.getElementById('calendarDays');
+            if (!calendarEl) return;
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // Obtener día de la semana del primer día (0 = domingo, 1 = lunes, etc.)
+            let firstDayOfWeek = firstDay.getDay();
+            if (firstDayOfWeek === 0) firstDayOfWeek = 7; // Convertir domingo (0) a 7 para que el calendario empiece en lunes
+            
+            // Días vacíos antes del primer día del mes
+            for (let i = 1; i < firstDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'h-12 border rounded bg-gray-50';
+                calendarEl.appendChild(emptyDay);
+            }
+            
+            // Crear los días del mes
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'h-12 border rounded bg-white relative';
+                
+                // Número del día
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'absolute top-1 left-1 text-xs font-semibold';
+                dayNumber.textContent = day;
+                dayEl.appendChild(dayNumber);
+
+                // Marcar el día actual
+                if (day === now.getDate()) {
+                    dayEl.className += ' border-2 border-teal-500';
+                }
+
+                // Buscar tareas para este día
+                let tasksForDay = [];
+                {% for evaluation in section.evaluations %}
+                    {% for task in evaluation.tasks %}
+                        {% if task.date %}
+                        const taskDate{{ task.id }} = new Date("{{ task.date }}");
+                        if (taskDate{{ task.id }}.getDate() === day && 
+                            taskDate{{ task.id }}.getMonth() === month && 
+                            taskDate{{ task.id }}.getFullYear() === year) {
+                            tasksForDay.push({
+                                name: "{{ task.name }}",
+                                evaluation: "{{ evaluation.name }}"
+                            });
+                        }
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+
+                // Añadir marcador si hay tareas
+                if (tasksForDay.length > 0) {
+                    const taskIndicator = document.createElement('div');
+                    taskIndicator.className = 'absolute bottom-1 right-1 w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold';
+                    taskIndicator.textContent = tasksForDay.length;
+                    
+                    // Tooltip con nombres de tareas
+                    taskIndicator.title = tasksForDay.map(t => `${t.name} (${t.evaluation})`).join('\n');
+                    
+                    dayEl.appendChild(taskIndicator);
+                    dayEl.className += ' cursor-pointer hover:bg-blue-50';
+                }
+                
+                calendarEl.appendChild(dayEl);
+            }
+        }
+        
+        initCalendar();
+    });
+</script>
+
+<style>
+.tab-active {
+    color: #14b8a6;
+    border-bottom: 2px solid #14b8a6;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+</style> 

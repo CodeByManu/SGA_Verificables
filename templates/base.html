@@ -4,17 +4,29 @@
   <head>
     <meta charset="utf-8">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>SGA - Sistema de Gestión Académica</title>
+    <style>
+      body {
+        transition: padding-left 0.3s ease;
+      }
+      .sidebar-text {
+        transition: opacity 0.2s ease;
+      }
+    </style>
   </head>
   <body>
-
     {% include 'navbar.html' %}
-
-    <main class="container mx-auto px-4 py-8">
-      {% block content %}
-      {% endblock %}
-    </main>
+    
+    <div class="flex">
+      {% include 'sidebar.html' %}
+      
+      <main class="transition-all duration-300 mt-16 ml-[50px] flex-grow px-4 py-6">
+        {% block content %}
+        {% endblock %}
+      </main>
+    </div>
+    
     {% block scripts %}{% endblock %}
   </body>
 </html>
