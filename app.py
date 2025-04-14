@@ -210,6 +210,37 @@ def delete_section(period_id, section_id):
     flash('Sección eliminada correctamente.')
     return redirect(url_for('get_period_detail', period_id=period_id))
 
+#EVALUATIONS
+@app.route('/sections/<int:section_id>/evaluations', methods=['POST'])
+def create_evaluation(section_id):
+    section = Section.query.get_or_404(section_id)
+    tasks_weight_type = request.form.get('tasks_weight_type')
+    weight = request.form.get('weight')
+    name = request.form.get('name')
+
+    if tasks_weight_type and weight:
+        new_evaluation = Evaluation(
+            name=name,
+            section_id=section.id,
+            tasks_weight_type=tasks_weight_type,
+            weight=weight
+        )
+        db.session.add(new_evaluation)
+        db.session.commit()
+        flash('Evaluación creada correctamente.')
+    else:
+        flash('Todos los campos son obligatorios.')
+    
+    return redirect(url_for('get_section_detail', section_id=section.id))
+
+@app.route('/sections/<int:section_id>/evaluations/<int:evaluation_id>/delete', methods=['POST'])
+def delete_evaluation(section_id, evaluation_id):
+    evaluation = Evaluation.query.get_or_404(evaluation_id)
+    db.session.delete(evaluation)
+    db.session.commit()
+    flash('Evaluación eliminada correctamente.')
+    return redirect(url_for('get_section_detail', section_id=section_id))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
