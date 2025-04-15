@@ -1,45 +1,52 @@
-{% macro link_class(page) -%} rounded px-2 py-1 mgl-5 {% if active_page == page %} font-bold bg-teal-500 {% else %} hover:bg-teal-400 {% endif %} {%- endmacro %}
+{% macro link_class(page) -%} rounded px-2 py-1 mgl-5 {% if active_page == page %} font-bold
+bg-teal-500 {% else %} hover:bg-teal-400 {% endif %} {%- endmacro %}
 
 <div class="relative">
-  <nav class="bg-teal-300 h-16 flex items-center px-8 justify-between fixed top-0 left-0 right-0 z-20" style="background-color: rgb(94, 234, 212); border-bottom: 2px solid black;">
-      <div class="flex items-center">
-          <h1 class="text-xl font-bold text-teal-900">SGA - Sistema de Gestión Académica</h1>
-      </div>
-      
-      <div class="relative" id="profile-container">
-          <div class="w-10 h-10 bg-teal-700 rounded-full flex items-center justify-center cursor-pointer shadow-md" id="profile-icon">
-              <i class="fas fa-user text-white"></i>
-          </div>
-          
-          <!-- Menú desplegable de perfil -->
-          <div id="profile-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
-              <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-teal-100">
-                  <i class="fas fa-user-circle mr-2"></i> Mi Perfil
-              </a>
-              <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-teal-100">
-                  <i class="fas fa-cog mr-2"></i> Configuración
-              </a>
-              <div class="border-t border-gray-200 my-1"></div>
-              <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-teal-100">
-                  <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
-              </a>
-          </div>
-      </div>
-  </nav>
+    <nav
+        class="bg-teal-300 h-16 flex items-center px-8 justify-between fixed top-0 left-0 right-0 z-20"
+        style="background-color: rgb(94, 234, 212);"
+    >
+        <div class="flex items-center">
+            <h1 class="text-xl font-bold text-teal-900">SGA - Sistema de Gestión Académica</h1>
+        </div>
+
+        <div class="relative" id="profile-container">
+            <div
+                class="w-10 h-10 bg-teal-700 rounded-full flex items-center justify-center cursor-pointer shadow-md"
+                id="profile-icon"
+            >
+                <i class="fas fa-user text-white"></i>
+            </div>
+
+            <div
+                id="profile-menu"
+                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden"
+            >
+                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-teal-100">
+                    <i class="fas fa-user-circle mr-2"></i> Mi Perfil
+                </a>
+                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-teal-100">
+                    <i class="fas fa-cog mr-2"></i> Configuración
+                </a>
+                <div class="border-t border-gray-200 my-1"></div>
+                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-teal-100">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </nav>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const profileIcon = document.getElementById('profile-icon');
         const profileMenu = document.getElementById('profile-menu');
-        
-        // Toggle del menú al hacer clic en el icono
-        profileIcon.addEventListener('click', function() {
+
+        profileIcon.addEventListener('click', function () {
             profileMenu.classList.toggle('hidden');
         });
-        
-        // Cerrar el menú si se hace clic fuera de él
-        document.addEventListener('click', function(event) {
+
+        document.addEventListener('click', function (event) {
             if (!profileIcon.contains(event.target) && !profileMenu.contains(event.target)) {
                 profileMenu.classList.add('hidden');
             }
