@@ -57,3 +57,8 @@ flask run
 ```
 
 La aplicación estará disponible en http://127.0.0.1:5000.
+
+## Consejos
+- Para crear una sección, debo crear un perido. Para crear un periodo, debo crear un curso. Cada uno de estos hijos se crea desde la vista principal del padre. (símbolo de ojo verde)
+- Para crear una sección debe haber, al menos, un profesor creado en la base de datos. Para crear un profesor se debe ingresar a la vista general de profesores accesible desde el sidebar.
+- Solo se puede agregar nota a alumnos desde una tarea creada con fecha de entrega anterior a la fecha actual.

@@ -224,6 +224,8 @@ def delete_student(student_id):
 def get_period_detail(period_id):
     period = Period.query.get_or_404(period_id)
     teachers = Teacher.query.all()
+    print(teachers)
+
     return render_template('periods/period_detail.html', period=period, teachers=teachers, active_page='courses')
 
 @app.route('/courses/<int:course_id>/periods', methods=['POST'])
