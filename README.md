@@ -11,8 +11,13 @@ Este proyecto utiliza Python, Flask y MySQL para gestionar cursos, periodos, pro
 
 ### 1. Crear la Base de Datos
 
-Abre la consola de MySQL y ejecuta lo siguiente para crear la base de datos `sga_db`:
-
+Abre la consola de MySQL y ejecuta los siguientes comandos para crear la base de datos `sga_db` y un usuario con los permisos correspondientes:
+```sql
+CREATE USER 'sga_user'@'localhost' IDENTIFIED BY 'sga_user';
+GRANT ALL PRIVILEGES ON sga_db.* TO 'sga_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+y luego
 ```sql
 CREATE DATABASE sga_db;
 ```
