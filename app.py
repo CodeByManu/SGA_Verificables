@@ -14,7 +14,6 @@ with app.app_context():
 
 @app.route('/')
 def home():
-    # Obtener datos básicos para el dashboard
     courses = Course.query.all()
     teachers = Teacher.query.all()
     students = Student.query.all()
@@ -249,6 +248,7 @@ def delete_period(course_id, period_id):
     return redirect(url_for('get_course_detail', course_id=course_id))
 
 #SECTION
+
 @app.route('/sections/<int:section_id>', methods=['GET'])
 def get_section_detail(section_id):
     section = Section.query.get_or_404(section_id)
@@ -256,7 +256,6 @@ def get_section_detail(section_id):
     current_ids = [ss.student_id for ss in section.student_sections]
     available_students = Student.query.filter(Student.id.notin_(current_ids)).all()
     
-    # Obtener la fecha actual para comparar con las fechas de las tareas
     now = datetime.now().date()
 
     return render_template(
@@ -264,7 +263,7 @@ def get_section_detail(section_id):
         section=section,
         available_students=available_students,
         active_page='courses',
-        now=now  # Para comparar con las fechas de tareas
+        now=now
     )
 
 @app.route('/sections/<int:section_id>/tasks/<int:task_id>/grading', methods=['GET', 'POST'])
@@ -272,38 +271,29 @@ def task_grading(section_id, task_id):
     section = Section.query.get_or_404(section_id)
     task = Task.query.get_or_404(task_id)
     
-    # Verificar que la tarea pertenece a la sección
     if task.evaluation.section_id != section_id:
         flash('La tarea no pertenece a esta sección.', 'danger')
         return redirect(url_for('get_section_detail', section_id=section_id))
     
-    # Obtener todos los estudiantes de la sección a través de student_sections
     student_ids = [s.student_id for s in StudentSection.query.filter_by(section_id=section_id).all()]
     students = Student.query.filter(Student.id.in_(student_ids)).all()
     
-    # Obtener las calificaciones existentes para esta tarea
     existing_grades = {}
     for grade in Grade.query.filter_by(task_id=task_id).all():
         existing_grades[grade.student_id] = grade
     
     if request.method == 'POST':
-        # Procesar las calificaciones enviadas
         for student in students:
             grade_value = request.form.get(f'grade_{student.id}')
             
-            # Si se proporcionó un valor válido
             if grade_value and grade_value.strip():
                 try:
                     grade_value = float(grade_value)
                     
-                    # Verificar que la calificación esté en el rango correcto
                     if 0 <= grade_value <= 100:
-                        # Actualizar o crear calificación
                         if student.id in existing_grades:
-                            # Actualizar calificación existente
                             existing_grades[student.id].value = grade_value
                         else:
-                            # Crear nueva calificación
                             new_grade = Grade(
                                 value=grade_value,
                                 student_id=student.id,
@@ -315,7 +305,6 @@ def task_grading(section_id, task_id):
                 except ValueError:
                     flash(f'Valor inválido para la calificación de {student.name}.', 'warning')
         
-        # Guardar cambios
         db.session.commit()
         flash('Calificaciones guardadas correctamente.', 'success')
         return redirect(url_for('task_grading', section_id=section_id, task_id=task_id))
@@ -361,6 +350,7 @@ def delete_section(period_id, section_id):
     return redirect(url_for('get_period_detail', period_id=period_id))
 
 #EVALUATIONS
+
 @app.route('/sections/<int:section_id>/evaluations', methods=['POST'])
 def create_evaluation(section_id):
     section = Section.query.get_or_404(section_id)
@@ -392,6 +382,7 @@ def delete_evaluation(section_id, evaluation_id):
     return redirect(url_for('get_section_detail', section_id=section_id))
 
 #STUDENT SECTIONS
+
 @app.route('/sections/<int:section_id>/add_students', methods=['POST'])
 def add_students_to_section(section_id):
     section = Section.query.get_or_404(section_id)
@@ -409,10 +400,11 @@ def add_students_to_section(section_id):
     flash('Estudiantes agregados correctamente.')
     return redirect(url_for('get_section_detail', section_id=section.id))
 
-#Tasks
+#TASKS
+
 @app.route('/sections/<int:section_id>/evaluations/<int:evaluation_id>/tasks', methods=['POST'])
 def add_task_to_evaluation(section_id, evaluation_id):
-    # Si el evaluation_id viene del formulario (cuando usamos el selector), usamos ese
+
     form_evaluation_id = request.form.get('evaluation_id')
     if form_evaluation_id:
         evaluation_id = int(form_evaluation_id)
@@ -449,6 +441,3 @@ def delete_task(section_id, evaluation_id, task_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-

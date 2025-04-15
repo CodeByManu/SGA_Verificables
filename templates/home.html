@@ -3,7 +3,6 @@
 {% block content %}
 
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-    <!-- Panel lateral izquierdo - Menú de acceso rápido -->
     <div class="lg:col-span-1 bg-white rounded-lg shadow-md p-4">
         <h2 class="text-lg font-bold text-teal-600 mb-4">Acceso Rápido</h2>
         <ul class="space-y-2">
@@ -42,15 +41,12 @@
         </div>
     </div>
     
-    <!-- Contenido principal -->
     <div class="lg:col-span-3 space-y-6">
-        <!-- Banner de bienvenida -->
         <div class="bg-gradient-to-r from-teal-500 to-teal-700 text-white p-6 rounded-lg shadow-md">
             <h1 class="text-2xl font-bold mb-2">Bienvenido al Sistema de Gestión Académica</h1>
             <p>Aquí podrás administrar cursos, estudiantes, profesores y calificaciones de manera sencilla.</p>
         </div>
         
-        <!-- Tarjetas de estadísticas -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <div class="flex justify-between items-center mb-3">
@@ -80,22 +76,18 @@
             </div>
         </div>
         
-        <!-- Gráficas -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Gráfica de cursos por período -->
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <h3 class="font-bold text-gray-700 mb-4">Distribución de Cursos por Período</h3>
                 <canvas id="coursesChart" height="250"></canvas>
             </div>
             
-            <!-- Gráfica de distribución de calificaciones -->
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <h3 class="font-bold text-gray-700 mb-4">Distribución de Calificaciones</h3>
                 <canvas id="gradesChart" height="250"></canvas>
             </div>
         </div>
         
-        <!-- Actividad reciente -->
         <div class="bg-white p-4 rounded-lg shadow-md">
             <h3 class="font-bold text-gray-700 mb-4">Actividad Reciente</h3>
             <div class="space-y-3">
@@ -121,7 +113,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Gráfica de cursos por período
     const coursesCtx = document.getElementById('coursesChart').getContext('2d');
     new Chart(coursesCtx, {
         type: 'bar',
@@ -163,7 +154,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Gráfica de distribución de calificaciones
     const gradesCtx = document.getElementById('gradesChart').getContext('2d');
     new Chart(gradesCtx, {
         type: 'doughnut',

@@ -83,9 +83,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Colorear las tarjetas de tareas basado en fechas
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Resetear a la medianoche
+        today.setHours(0, 0, 0, 0);
         
         document.querySelectorAll('.task-card').forEach(card => {
             const dateStr = card.getAttribute('data-date');

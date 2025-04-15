@@ -37,7 +37,6 @@
         </a>
     </div>
 
-    <!-- Estadísticas de calificaciones -->
     {% set grade_values = [] %}
     {% for student_id, grade in existing_grades.items() %}
         {% if grade_values.append(grade.value) %}{% endif %}
@@ -66,7 +65,6 @@
 
     {% endif %}
 
-    <!-- Formulario de calificaciones -->
     <div class="bg-white border rounded-lg overflow-hidden">
         <div class="px-6 py-4 bg-gray-50 border-b">
             <h3 class="font-bold text-gray-800">Lista de estudiantes</h3>

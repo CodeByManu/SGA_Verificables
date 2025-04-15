@@ -69,7 +69,6 @@
                 return;
             }
             
-            // Actualizar la URL del formulario con el ID de evaluación seleccionado
             this.action = "{{ url_for('add_task_to_evaluation', section_id=section.id, evaluation_id=0) }}".replace('/0', '/' + evaluationId);
             this.submit();
         });

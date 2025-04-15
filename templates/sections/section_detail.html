@@ -21,7 +21,6 @@
         </a>
     </div>
 
-    <!-- Resumen general -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div class="bg-gradient-to-br from-teal-50 to-teal-100 p-4 rounded-lg shadow flex flex-col items-center justify-center">
             <div class="text-4xl font-bold text-teal-600 mb-2">{{ section.evaluations|length }}</div>
@@ -70,13 +69,11 @@
     </ul>
 </div>
 
-<!-- Incluir contenido de pestañas desde archivos parciales -->
 {% include "sections/components/_tab_evaluations.html" %}
 {% include "sections/components/_tab_tasks.html" %}
 {% include "sections/components/_tab_students.html" %}
 {% include "sections/components/_tab_analytics.html" %}
 
-<!-- Incluir modales -->
 {% include "sections/modal_add_students.html" %}
 {% include "sections/modal_add_evaluation.html" %}
 {% include "sections/modal_add_task.html" %}

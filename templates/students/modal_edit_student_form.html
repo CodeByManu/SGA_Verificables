@@ -1,13 +1,8 @@
-<!-- templates/students/modal_edit_student_form.html -->
 <div id="modal-edit-student" class="fixed inset-0 flex items-start justify-center z-50 hidden">
-    <!-- Fondo semi-transparente para el modal -->
     <div class="absolute inset-0 bg-black opacity-50" onclick="closeModalEditStudent()"></div>
-    <!-- Contenedor del modal, posicionado más arriba (mt-24) -->
     <div class="bg-white rounded-lg p-6 z-10 relative w-full max-w-md mt-24">
         <h3 class="text-xl font-bold mb-4">Edit Student</h3>
-        <!-- Formulario para editar el estudiante -->
         <form id="edit-student-form" method="POST" action="">
-            <!-- Campo oculto para el id del estudiante -->
             <input type="hidden" id="edit-student-id" name="student_id" value="" />
             <div class="mb-4">
                 <label for="edit-student-name" class="block text-gray-700 font-semibold mb-1"
@@ -73,7 +68,6 @@
     }
 
     function openEditStudentModal(button) {
-        // Extraer los datos del botón
         const studentId = button.getAttribute('data-id');
         const studentName = button.getAttribute('data-name');
         const studentEmail = button.getAttribute('data-email');
