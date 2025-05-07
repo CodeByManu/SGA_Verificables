@@ -16,7 +16,12 @@ def get_period_detail(period_id):
 
 @period_bp.route('/courses/<int:course_id>/periods', methods=['POST'])
 def post_period(course_id):
-    create_period_for_course(course_id, request.form)
+    period_value = request.form.get('period')
+    if period_value:
+        create_period_for_course(course_id, period_value)
+        flash('Periodo agregado correctamente.')
+    else:
+        flash('Debes ingresar un nombre de periodo.')
     return redirect(url_for('courses.get_course_detail', course_id=course_id))
 
 @period_bp.route('/courses/<int:course_id>/periods/<int:period_id>/delete', methods=['POST'])

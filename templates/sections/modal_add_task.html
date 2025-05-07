@@ -3,7 +3,7 @@
     <div class="bg-white rounded-lg p-6 z-10 relative w-full max-w-3xl mt-24">
         <h3 class="text-xl font-bold mb-4">Añadir Tarea</h3>
 
-        <form method="POST" action="{{ url_for('add_task_to_evaluation', section_id=section.id, evaluation_id=0) }}" id="taskForm">
+        <form method="POST" action="{{ url_for('tasks.add_task_to_evaluation', section_id=section.id, evaluation_id=0) }}" id="taskForm">
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="evaluation_id">
                     Evaluación
@@ -69,7 +69,7 @@
                 return;
             }
             
-            this.action = "{{ url_for('add_task_to_evaluation', section_id=section.id, evaluation_id=0) }}".replace('/0', '/' + evaluationId);
+            this.action = "{{ url_for('tasks.add_task_to_evaluation', section_id=section.id, evaluation_id=0) }}".replace('/0', '/' + evaluationId);
             this.submit();
         });
     });

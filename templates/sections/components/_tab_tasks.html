@@ -34,7 +34,7 @@
                                     <div class="d-flex">
                                         <form
                                             method="POST"
-                                            action="{{ url_for('delete_task', section_id=section.id, evaluation_id=evaluation.id, task_id=task.id) }}"
+                                            action="{{ url_for('tasks.delete_task', section_id=section.id, evaluation_id=evaluation.id, task_id=task.id) }}"
                                             onsubmit="return confirm('¿Está seguro que desea eliminar esta tarea?');"
                                             class="inline"
                                         >
@@ -43,7 +43,7 @@
                                             </button>
                                         </form>
                                         {% if task.date <= now %}
-                                        <a href="{{ url_for('task_grading', section_id=section.id, task_id=task.id) }}" 
+                                        <a href="{{ url_for('grades.task_grading', section_id=section.id, task_id=task.id) }}" 
                                            class="text-blue-500 hover:text-blue-700 ml-2 task-grade-btn">
                                             <i class="fas fa-star"></i> Calificar
                                         </a>

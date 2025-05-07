@@ -1,0 +1,26 @@
+from models import db
+from models.entities import Section, Period, Teacher
+
+def get_section_by_id(section_id):
+    return Section.query.get_or_404(section_id)
+
+def create_section_for_period(period_id, form_data):
+    section_number = form_data.get('section_number')
+    teacher_id = form_data.get('teacher_id')
+    evaluation_weight_type = form_data.get('evaluation_weight_type')
+
+    teacher = Teacher.query.get(teacher_id)
+    if section_number and teacher:
+        new_section = Section(
+            period_id=period_id,
+            section_number=section_number,
+            teacher_id=teacher.id,
+            evaluation_weight_type=evaluation_weight_type
+        )
+        db.session.add(new_section)
+        db.session.commit()
+
+def delete_section_by_id(section_id):
+    section = Section.query.get_or_404(section_id)
+    db.session.delete(section)
+    db.session.commit()

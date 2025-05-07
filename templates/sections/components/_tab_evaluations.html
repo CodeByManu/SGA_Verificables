@@ -20,7 +20,7 @@
                     <h4 class="font-bold text-gray-800">{{ evaluation.name }}</h4>
                     <form
                         method="POST"
-                        action="{{ url_for('delete_evaluation', section_id=section.id, evaluation_id=evaluation.id) }}"
+                        action="{{ url_for('evaluations.delete_evaluation', section_id=section.id, evaluation_id=evaluation.id) }}"
                         onsubmit="return confirm('¿Está seguro que desea eliminar esta evaluación?');"
                         class="inline"
                     >
