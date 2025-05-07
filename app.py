@@ -15,6 +15,11 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+    
+from views import student_bp, teacher_bp
+app.register_blueprint(student_bp)
+app.register_blueprint(teacher_bp)
+
 
 # HOME
 
@@ -138,91 +143,6 @@ def delete_course(course_id):
     db.session.commit()
     flash('Curso eliminado exitosamente.')
     return redirect(url_for('get_courses'))
-
-#TEACHERS
-
-@app.route('/teachers', methods=['GET'])
-def get_teachers():
-    teachers = Teacher.query.all()
-    return render_template('teachers/teachers.html', teachers=teachers, active_page='teachers')
-
-@app.route('/teachers/<int:teacher_id>', methods=['GET'])
-def get_teacher_detail(teacher_id):
-    teacher = Teacher.query.get_or_404(teacher_id)
-    return render_template('teachers/teacher_detail.html', teacher=teacher, active_page='teachers')
-
-@app.route('/teachers', methods=['POST'])
-def create_teacher():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        new_teacher = Teacher(name=name, email=email)
-        db.session.add(new_teacher)
-        db.session.commit()
-        flash('Teacher added successfully!')
-        return redirect(url_for('get_teachers'))
-    
-@app.route('/teachers/<int:teacher_id>', methods=['POST'])
-def update_teacher(teacher_id):
-    teacher = Teacher.query.get_or_404(teacher_id)
-    if request.method == 'POST':
-        teacher.name = request.form.get('name')
-        teacher.email = request.form.get('email')
-        db.session.commit()
-        flash('Teacher updated successfully!')
-        return redirect(url_for('get_teachers'))
-    
-@app.route('/teacher/delete/<int:teacher_id>', methods=['POST'])
-def delete_teacher(teacher_id):
-    teacher = Teacher.query.get_or_404(teacher_id)
-    db.session.delete(teacher)
-    db.session.commit()
-    flash('Teacher deleted successfully.')
-    return redirect(url_for('get_teachers'))
-
-#STUDENTS
-
-@app.route('/students', methods=['GET'])
-def get_students():
-    students = Student.query.all()
-    return render_template('students/students.html', students=students, active_page='students')
-
-@app.route('/students/<int:student_id>', methods=['GET'])
-def get_student_detail(student_id):
-    student = Student.query.get_or_404(student_id)
-    return render_template('students/student_detail.html', student=student, active_page='students')
-
-@app.route('/students', methods=['POST'])
-def create_student():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        admission_date = request.form.get('admission_date')
-        new_student = Student(name=name, email=email, admission_date=admission_date)
-        db.session.add(new_student)
-        db.session.commit()
-        flash('Student added successfully!')
-        return redirect(url_for('get_students'))
-
-@app.route('/students/<int:student_id>', methods=['POST'])
-def update_student(student_id):
-    student = Student.query.get_or_404(student_id)
-    if request.method == 'POST':
-        student.name = request.form.get('name')
-        student.email = request.form.get('email')
-        student.admission_date = request.form.get('admission_date')
-        db.session.commit()
-        flash('Student updated successfully!')
-        return redirect(url_for('get_students'))
-
-@app.route('/student/delete/<int:student_id>', methods=['POST'])
-def delete_student(student_id):
-    student = Student.query.get_or_404(student_id)
-    db.session.delete(student)
-    db.session.commit()
-    flash('Student deleted successfully.')
-    return redirect(url_for('get_students'))
-
 
 #PERIODS
 
