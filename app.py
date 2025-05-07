@@ -1,7 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from config import Config
-from models import db, Course, Prerequisite, Period, Section, Teacher, Student, StudentSection, Evaluation, Task, Grade
+from models import db 
+from models.entities import (
+    Course, Prerequisite, Period, Section,
+    Teacher, Student, StudentSection,
+    Evaluation, Task, Grade
+)
 from datetime import datetime
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
