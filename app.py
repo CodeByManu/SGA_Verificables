@@ -16,11 +16,12 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
     
-from views import student_bp, teacher_bp, course_bp
+from views import student_bp, teacher_bp, course_bp, period_bp
 
 app.register_blueprint(student_bp)
 app.register_blueprint(teacher_bp)
 app.register_blueprint(course_bp)
+app.register_blueprint(period_bp)
 
 
 # HOME
@@ -103,37 +104,6 @@ def home():
         recent_activities=recent_activities
     )
 
-
-#PERIODS
-
-@app.route('/periods/<int:period_id>', methods=['GET'])
-def get_period_detail(period_id):
-    period = Period.query.get_or_404(period_id)
-    teachers = Teacher.query.all()
-    print(teachers)
-
-    return render_template('periods/period_detail.html', period=period, teachers=teachers, active_page='courses')
-
-@app.route('/courses/<int:course_id>/periods', methods=['POST'])
-def create_period(course_id):
-    course = Course.query.get_or_404(course_id)
-    period_value = request.form.get('period')
-    if period_value:
-        new_period = Period(course_id=course.id, period=period_value)
-        db.session.add(new_period)
-        db.session.commit()
-        flash('Periodo agregado correctamente.')
-    else:
-        flash('Debes ingresar un nombre de periodo.')
-    return redirect(url_for('courses.get_course_detail', course_id=course.id))
-
-@app.route('/courses/<int:course_id>/periods/<int:period_id>/delete', methods=['POST'])
-def delete_period(course_id, period_id):
-    period = Period.query.get_or_404(period_id)
-    db.session.delete(period)
-    db.session.commit()
-    flash('Periodo eliminado correctamente.')
-    return redirect(url_for('courses.get_course_detail', course_id=course_id))
 
 #SECTION
 
@@ -226,7 +196,7 @@ def create_section(period_id):
         flash('Sección creada correctamente.')
     else:
         flash('Debes ingresar todos los campos requeridos.')
-    return redirect(url_for('get_period_detail', period_id=period.id))
+    return redirect(url_for('periods.get_period_detail', period_id=period.id))
 
 
 @app.route('/periods/<int:period_id>/sections/<int:section_id>/delete', methods=['POST'])
@@ -235,7 +205,7 @@ def delete_section(period_id, section_id):
     db.session.delete(section)
     db.session.commit()
     flash('Sección eliminada correctamente.')
-    return redirect(url_for('get_period_detail', period_id=period_id))
+    return redirect(url_for('periods.get_period_detail', period_id=period_id))
 
 #EVALUATIONS
 

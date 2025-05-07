@@ -15,7 +15,7 @@
                 <span>{{ section.period.course.name }} - {{ section.period.period }}</span>
             </div>
         </div>
-        <a href="{{ url_for('get_period_detail', period_id=section.period.id) }}"
+        <a href="{{ url_for('periods.get_period_detail', period_id=section.period.id) }}"
             class="mt-4 md:mt-0 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg inline-flex items-center transition-colors">
             <i class="fas fa-arrow-left mr-2"></i> Volver al periodo
         </a>
