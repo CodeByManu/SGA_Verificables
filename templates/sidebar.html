@@ -5,7 +5,7 @@
             <span class="ml-4 whitespace-nowrap sidebar-text opacity-0">Inicio</span>
         </a>
         
-        <a href="{{ url_for('get_courses') }}" class="sidebar-item flex items-center px-4 py-3 text-white hover:bg-white/20 transition duration-300 {% if active_page == 'courses' %}bg-white/30 font-medium{% endif %}">
+        <a href="{{ url_for('courses.get_courses') }}" class="sidebar-item flex items-center px-4 py-3 text-white hover:bg-white/20 transition duration-300 {% if active_page == 'courses' %}bg-white/30 font-medium{% endif %}">
             <i class="fas fa-book w-6"></i>
             <span class="ml-4 whitespace-nowrap sidebar-text opacity-0">Cursos</span>
         </a>

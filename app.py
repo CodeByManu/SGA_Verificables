@@ -16,9 +16,11 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
     
-from views import student_bp, teacher_bp
+from views import student_bp, teacher_bp, course_bp
+
 app.register_blueprint(student_bp)
 app.register_blueprint(teacher_bp)
+app.register_blueprint(course_bp)
 
 
 # HOME
@@ -101,48 +103,6 @@ def home():
         recent_activities=recent_activities
     )
 
-# COURSES
-
-@app.route('/courses', methods=['GET'])
-def get_courses():
-    courses = Course.query.all()
-    return render_template('courses/courses.html', courses=courses, active_page='courses')
-
-@app.route('/courses/<int:course_id>', methods=['GET'])
-def get_course_detail(course_id):
-    course = Course.query.get_or_404(course_id)
-    return render_template('courses/course_detail.html', course=course, active_page='courses')
-
-@app.route('/courses', methods=['POST'])
-def create_course():
-    if request.method == 'POST':
-        code = request.form.get('code')
-        name = request.form.get('name')
-        description = request.form.get('description')
-        new_course = Course(code=code, name=name, description=description)
-        db.session.add(new_course)
-        db.session.commit()
-        flash('Course added successfully!')
-        return redirect(url_for('get_courses'))
-    
-@app.route('/courses/<int:course_id>', methods=['POST'])
-def update_course(course_id):
-    course = Course.query.get_or_404(course_id)
-    if request.method == 'POST':
-        course.code = request.form.get('code')
-        course.name = request.form.get('name')
-        course.description = request.form.get('description')
-        db.session.commit()
-        flash('Course updated successfully!')
-        return redirect(url_for('get_courses'))
-    
-@app.route('/course/delete/<int:course_id>', methods=['POST'])
-def delete_course(course_id):
-    course = Course.query.get_or_404(course_id)
-    db.session.delete(course)
-    db.session.commit()
-    flash('Curso eliminado exitosamente.')
-    return redirect(url_for('get_courses'))
 
 #PERIODS
 
@@ -165,7 +125,7 @@ def create_period(course_id):
         flash('Periodo agregado correctamente.')
     else:
         flash('Debes ingresar un nombre de periodo.')
-    return redirect(url_for('get_course_detail', course_id=course.id))
+    return redirect(url_for('courses.get_course_detail', course_id=course.id))
 
 @app.route('/courses/<int:course_id>/periods/<int:period_id>/delete', methods=['POST'])
 def delete_period(course_id, period_id):
@@ -173,7 +133,7 @@ def delete_period(course_id, period_id):
     db.session.delete(period)
     db.session.commit()
     flash('Periodo eliminado correctamente.')
-    return redirect(url_for('get_course_detail', course_id=course_id))
+    return redirect(url_for('courses.get_course_detail', course_id=course_id))
 
 #SECTION
 
