@@ -1,0 +1,36 @@
+<!-- modal_edit_period.html -->
+<div id="modal-edit-period" class="fixed inset-0 flex items-start justify-center z-50 hidden">
+    <div class="absolute inset-0 bg-black opacity-50" onclick="closeEditPeriodModal()"></div>
+    <div class="bg-white rounded-lg p-6 z-10 relative w-full max-w-md mt-24">
+        <h3 class="text-xl font-bold mb-4">Editar Periodo</h3>
+        <form method="POST" id="edit-period-form">
+            <div class="mb-4">
+                <label for="edit-period" class="block text-gray-700 font-semibold mb-1">Periodo</label>
+                <input
+                    type="text"
+                    id="edit-period"
+                    name="period"
+                    placeholder="e.g. 2025-1"
+                    class="border border-gray-300 rounded w-full py-2 px-3 focus:outline-none focus:border-teal-400"
+                    required
+                />
+            </div>
+            <div class="flex justify-end space-x-2 mt-4">
+                <button
+                    type="button"
+                    class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+                    onclick="closeEditPeriodModal()"
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    class="px-4 py-2 rounded bg-teal-500 text-white hover:bg-teal-600"
+                >
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+    

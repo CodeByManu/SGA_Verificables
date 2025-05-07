@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from services.period_service import (
     get_period_by_id,
     create_period_for_course,
-    delete_period_by_id
+    delete_period_by_id,
+    update_period
 )
 from models.entities import Teacher  # Necesario para mostrar en detalle
 
@@ -28,4 +29,13 @@ def post_period(course_id):
 def delete_period(course_id, period_id):
     delete_period_by_id(period_id)
     flash('Periodo eliminado correctamente.')
+    return redirect(url_for('courses.get_course_detail', course_id=course_id))
+
+@period_bp.route('/courses/<int:course_id>/periods/<int:period_id>', methods=['POST'])
+def update_period_view(course_id, period_id):
+    success = update_period(period_id, request.form)
+    if success:
+        flash('Periodo actualizado correctamente.')
+    else:
+        flash('El valor del periodo no puede estar vacío.', 'warning')
     return redirect(url_for('courses.get_course_detail', course_id=course_id))

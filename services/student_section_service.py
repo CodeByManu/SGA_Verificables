@@ -1,12 +1,8 @@
 from models import db
 from models.entities import StudentSection
 
+# CORRECTO
 def add_students_to_section(section_id, student_ids):
-    """
-    Agrega una lista de estudiantes a una sección, evitando duplicados.
-    Retorna el número de estudiantes efectivamente agregados.
-    """
-    count = 0
     for student_id in student_ids:
         exists = StudentSection.query.filter_by(
             student_id=student_id,
@@ -14,8 +10,13 @@ def add_students_to_section(section_id, student_ids):
         ).first()
         if not exists:
             db.session.add(StudentSection(student_id=student_id, section_id=section_id))
-            count += 1
+    db.session.commit()
+    return len(student_ids)
 
-    if count > 0:
+def remove_student_from_section(section_id, student_id):
+    ss = StudentSection.query.filter_by(section_id=section_id, student_id=student_id).first()
+    if ss:
+        db.session.delete(ss)
         db.session.commit()
-    return count
+        return True
+    return False

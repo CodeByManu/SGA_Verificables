@@ -18,17 +18,35 @@
             <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
                 <div class="flex justify-between">
                     <h4 class="font-bold text-gray-800">{{ evaluation.name }}</h4>
-                    <form
-                        method="POST"
-                        action="{{ url_for('evaluations.delete_evaluation', section_id=section.id, evaluation_id=evaluation.id) }}"
-                        onsubmit="return confirm('¿Está seguro que desea eliminar esta evaluación?');"
-                        class="inline"
-                    >
-                        <button title="Eliminar" type="submit" class="text-red-500 hover:text-red-700">
-                            <i class="fas fa-trash-alt"></i>
+                    <div class="flex space-x-2 items-center">
+                        <!-- Botón de editar -->
+                        <button
+                            type="button"
+                            class="text-blue-500 hover:text-blue-700"
+                            data-evaluation-id="{{ evaluation.id }}"
+                            data-section-id="{{ section.id }}"
+                            data-name="{{ evaluation.name }}"
+                            data-tasks-weight-type="{{ evaluation.tasks_weight_type }}"
+                            data-weight="{{ evaluation.weight }}"
+                            onclick="openEditEvaluationModal(this)"
+                        >
+                            <i class="fas fa-edit"></i>
                         </button>
-                    </form>
+                
+                        <!-- Botón de eliminar -->
+                        <form
+                            method="POST"
+                            action="{{ url_for('evaluations.delete_evaluation', section_id=section.id, evaluation_id=evaluation.id) }}"
+                            onsubmit="return confirm('¿Está seguro que desea eliminar esta evaluación?');"
+                            class="inline"
+                        >
+                            <button title="Eliminar" type="submit" class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
+                
                 <div class="text-sm text-gray-600 mt-2">
                     <div><span class="font-medium">Tipo de peso:</span> {{ evaluation.tasks_weight_type }}</div>
                     <div><span class="font-medium">Valor del peso:</span> {{ evaluation.weight }}</div>
@@ -50,4 +68,27 @@
         </div>
         {% endif %}
     </div>
-</div> 
+</div>
+
+<script>
+    function openEditEvaluationModal(button) {
+        const evaluationId = button.getAttribute('data-evaluation-id');
+        const sectionId = button.getAttribute('data-section-id');
+        const name = button.getAttribute('data-name');
+        const type = button.getAttribute('data-tasks-weight-type');
+        const weight = button.getAttribute('data-weight');
+
+        const form = document.getElementById('edit-evaluation-form');
+        form.action = `/sections/${sectionId}/evaluations/${evaluationId}`;
+
+        document.getElementById('edit-evaluation-name').value = name;
+        document.getElementById('edit-tasks-weight-type').value = type;
+        document.getElementById('edit-evaluation-weight').value = weight;
+
+        document.getElementById('modal-edit-evaluation').classList.remove('hidden');
+    }
+
+    function closeEditEvaluationModal() {
+        document.getElementById('modal-edit-evaluation').classList.add('hidden');
+    }
+</script>

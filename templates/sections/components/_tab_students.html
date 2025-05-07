@@ -16,19 +16,31 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {% for ss in section.student_sections %}
             <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div class="flex items-center mb-3">
-                    <div class="bg-purple-100 rounded-full w-10 h-10 flex items-center justify-center mr-3">
-                        <i class="fas fa-user text-purple-500"></i>
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center">
+                        <div class="bg-purple-100 rounded-full w-10 h-10 flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-purple-500"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-gray-800">{{ ss.student.name }}</h5>
+                            <div class="text-sm text-gray-500">{{ ss.student.email }}</div>
+                        </div>
                     </div>
-                    <div>
-                        <h5 class="font-bold text-gray-800">{{ ss.student.name }}</h5>
-                        <div class="text-sm text-gray-500">{{ ss.student.email }}</div>
-                    </div>
+                    <form
+                        method="POST"
+                        action="{{ url_for('student_sections.remove_student_from_section_view', section_id=section.id, student_id=ss.student.id) }}"
+                        onsubmit="return confirm('¿Deseas eliminar a {{ ss.student.name }} de esta sección?');"
+                        class="inline"
+                    >
+                        <button title="Eliminar" type="submit" class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
                 </div>
                 <div class="text-sm text-gray-600">
                     <div><span class="font-medium">Año de admisión:</span> {{ ss.student.admission_date }}</div>
                 </div>
-            </div>
+            </div>            
             {% endfor %}
         </div>
         {% else %}

@@ -18,25 +18,33 @@ def update_grades_for_task(task_id, section_id, students, form_data):
     changes_made = False
 
     for student in students:
-        grade_value = form_data.get(f'grade_{student.id}')
-        if grade_value and grade_value.strip():
-            try:
-                grade_value = float(grade_value)
-                if 0 <= grade_value <= 100:
-                    if student.id in existing_grades:
-                        existing_grades[student.id].value = grade_value
-                    else:
-                        new_grade = Grade(
-                            value=grade_value,
-                            student_id=student.id,
-                            task_id=task_id
-                        )
-                        db.session.add(new_grade)
+        key = f'grade_{student.id}'
+        grade_value = form_data.get(key)
+
+        if grade_value is not None:
+            if grade_value.strip() == '':
+                # Eliminar nota si existe
+                if student.id in existing_grades:
+                    db.session.delete(existing_grades[student.id])
                     changes_made = True
-                else:
-                    flash(f'La calificación para {student.name} debe estar entre 0 y 100.', 'warning')
-            except ValueError:
-                flash(f'Valor inválido para la calificación de {student.name}.', 'warning')
+            else:
+                try:
+                    grade_value = float(grade_value)
+                    if 0 <= grade_value <= 100:
+                        if student.id in existing_grades:
+                            existing_grades[student.id].value = grade_value
+                        else:
+                            new_grade = Grade(
+                                value=grade_value,
+                                student_id=student.id,
+                                task_id=task_id
+                            )
+                            db.session.add(new_grade)
+                        changes_made = True
+                    else:
+                        flash(f'La calificación para {student.name} debe estar entre 0 y 100.', 'warning')
+                except ValueError:
+                    flash(f'Valor inválido para la calificación de {student.name}.', 'warning')
 
     if changes_made:
         db.session.commit()

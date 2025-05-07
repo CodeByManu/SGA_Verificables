@@ -1,7 +1,8 @@
 from flask import Blueprint, request, redirect, url_for, flash
 from services.evaluation_service import (
     create_evaluation_for_section,
-    delete_evaluation_by_id
+    delete_evaluation_by_id,
+    update_evaluation
 )
 from models.entities import Evaluation
 
@@ -14,6 +15,15 @@ def post_evaluation(section_id):
         flash('Evaluación creada correctamente.')
     else:
         flash('Todos los campos son obligatorios.')
+    return redirect(url_for('sections.get_section_detail', section_id=section_id))
+
+@evaluation_bp.route('/sections/<int:section_id>/evaluations/<int:evaluation_id>', methods=['POST'])
+def update_evaluation_view(section_id, evaluation_id):
+    success = update_evaluation(evaluation_id, request.form)
+    if success:
+        flash('Evaluación actualizada correctamente.', 'success')
+    else:
+        flash('Todos los campos son obligatorios.', 'warning')
     return redirect(url_for('sections.get_section_detail', section_id=section_id))
 
 @evaluation_bp.route('/sections/<int:section_id>/evaluations/<int:evaluation_id>/delete', methods=['POST'])

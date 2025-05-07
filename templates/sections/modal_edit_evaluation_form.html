@@ -1,0 +1,52 @@
+<div id="modal-edit-evaluation" class="fixed inset-0 flex items-start justify-center z-50 hidden">
+    <div class="absolute inset-0 bg-black opacity-50" onclick="closeEditEvaluationModal()"></div>
+    <div class="bg-white rounded-lg p-6 z-10 relative w-full max-w-md mt-24">
+        <h3 class="text-xl font-bold mb-4">Edit Evaluation</h3>
+        <form method="POST" id="edit-evaluation-form">
+            <div class="mb-4">
+                <label for="edit-evaluation-name" class="block text-gray-700 font-semibold mb-1">Evaluation Name</label>
+                <input
+                    type="text"
+                    id="edit-evaluation-name"
+                    name="name"
+                    required
+                    class="border border-gray-300 rounded w-full py-2 px-3 focus:outline-none focus:border-teal-400"
+                />
+            </div>
+
+            <div class="mb-4">
+                <label for="edit-evaluation-weight" class="block text-gray-700 font-semibold mb-1">Weight</label>
+                <input
+                    type="number"
+                    step="1"
+                    id="edit-evaluation-weight"
+                    name="weight"
+                    required
+                    class="border border-gray-300 rounded w-full py-2 px-3 focus:outline-none focus:border-teal-400"
+                />
+            </div>
+
+            <div class="mb-4">
+                <label for="edit-tasks-weight-type" class="block text-gray-700 font-semibold mb-1">Tasks Weight Type</label>
+                <select
+                    id="edit-tasks-weight-type"
+                    name="tasks_weight_type"
+                    required
+                    class="border border-gray-300 rounded w-full py-2 px-3 focus:outline-none focus:border-teal-400"
+                >
+                    <option value="Percentage">Percentage</option>
+                    <option value="Weight">Weight</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="button" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded" onclick="closeEditEvaluationModal()">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
