@@ -1,39 +1,40 @@
 <div id="upload-result-modal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
     <div class="absolute inset-0 bg-black opacity-50" onclick="closeUploadResultModal()"></div>
-    
-    <div class="bg-white p-6 rounded-lg shadow-lg z-10 max-w-md w-full text-center">
+
+    <div class="bg-white p-6 rounded-lg shadow-lg z-10 max-w-2xl w-full text-center">
         <h2 id="upload-result-title" class="text-xl font-semibold text-gray-800 mb-4">
             Carga completada
         </h2>
-        <p id="upload-result-message" class="text-gray-600">Los datos fueron procesados exitosamente.</p>
+        <p id="upload-result-message" class="text-gray-600 mb-2">Los datos fueron procesados exitosamente.</p>
 
-        <div class="mt-6">
-
+        <!-- Conflictos -->
+        <div id="upload-result-conflicts" class="text-sm text-left text-red-600 mt-4 hidden overflow-x-auto max-h-96 overflow-y-auto">
+            <table class="min-w-full text-xs border-collapse border border-gray-300">
+                <thead class="bg-gray-100 sticky top-0">
+                    <tr>
+                        <th class="border px-2 py-1">Campo</th>
+                        <th class="border px-2 py-1">Ya existe</th>
+                        <th class="border px-2 py-1">Nuevo</th>
+                    </tr>
+                </thead>
+                <tbody id="conflict-table-body"></tbody>
+            </table>
         </div>
+
+        <!-- Acciones -->
+        <div class="mt-6" id="upload-result-actions"></div>
     </div>
 </div>
 
+
+
 {% block scripts %} 
 <script>
-function showUploadResult(success = true, message = '') {
-    const modal = document.getElementById('upload-result-modal');
-    const title = document.getElementById('upload-result-title');
-    const msg = document.getElementById('upload-result-message');
 
-    title.textContent = success ? "Carga exitosa" : "Error en la carga";
-    msg.textContent = message || (success 
-        ? "Los datos fueron procesados correctamente." 
-        : "Ocurrió un problema al procesar el archivo JSON.");
-
-    modal.classList.remove('hidden');
-}
-
-function closeUploadResultModal() {
-    document.getElementById('upload-result-modal').classList.add('hidden');
-}
-</script>
-
-<script>
+let duplicatedConflicts = [];
+let lastUploadedFile = null;
+let lastUploadUrl = null;
+const conflictsPerPage = 3;
 
 function handleJsonUpload(input, endpointUrl) {
     const file = input.files[0];
@@ -48,22 +49,149 @@ function handleJsonUpload(input, endpointUrl) {
     })
     .then(response => response.json())
     .then(data => {
-        const tipo = endpointUrl.includes("teacher") ? "profesores" :
-                     endpointUrl.includes("student") ? "estudiantes" :
-                     "datos";
+        lastUploadedFile = file;
+        lastUploadUrl = endpointUrl;
+
         if (data.success) {
-            showUploadResult(true, `${data.message}`);
-            setTimeout(() => location.reload(), 2000);
+            showUploadResult(true, data.message, true);
+        } else if (data.duplicated) {
+            showUploadResult(false, data.message, false, data.duplicated);
         } else {
-            showUploadResult(false, `${tipo}: ${data.message}`);
+            showUploadResult(false, data.message, false);
         }
     })
     .catch(() => {
-        showUploadResult(false, "Error de red o de servidor.");
+        showUploadResult(false, "Error de red o de servidor.", false);
+    });
+}
+
+function showUploadResult(success = true, message = '', shouldReload = false, duplicated = []) {
+    const modal = document.getElementById('upload-result-modal');
+    const title = document.getElementById('upload-result-title');
+    const msg = document.getElementById('upload-result-message');
+    const conflictsWrapper = document.getElementById('upload-result-conflicts');
+    const conflictsTableBody = document.getElementById('conflict-table-body');
+    const actions = document.getElementById('upload-result-actions');
+
+    title.textContent = success ? "Carga exitosa" : "Error en la carga";
+    msg.textContent = message;
+
+    conflictsTableBody.innerHTML = '';
+    conflictsWrapper.classList.add('hidden');
+    actions.innerHTML = '';
+
+    duplicatedConflicts = duplicated;
+    currentPage = 0;
+
+    if (duplicated.length > 0) {
+        conflictsWrapper.classList.remove('hidden');
+        renderConflictPage(currentPage);
+
+        // Botones de acción
+        const overwriteBtn = document.createElement('button');
+        overwriteBtn.textContent = "Sobrescribir";
+        overwriteBtn.className = "bg-blue-500 text-white px-4 py-2 rounded mr-2";
+        overwriteBtn.onclick = confirmOverwrite;
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = "Cancelar";
+        cancelBtn.className = "bg-gray-400 text-white px-4 py-2 rounded";
+        cancelBtn.onclick = closeUploadResultModal;
+
+        actions.appendChild(overwriteBtn);
+        actions.appendChild(cancelBtn);
+
+        // Botones de paginación
+        const totalPages = Math.ceil(duplicated.length / conflictsPerPage);
+        if (totalPages > 1) {
+            const nav = document.createElement('div');
+            nav.className = "mt-4 flex justify-center gap-2";
+
+            const prev = document.createElement('button');
+            prev.textContent = "«";
+            prev.disabled = currentPage === 0;
+            prev.className = "px-2 py-1 border rounded bg-gray-200";
+            prev.onclick = () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    renderConflictPage(currentPage);
+                }
+            };
+
+            const next = document.createElement('button');
+            next.textContent = "»";
+            next.disabled = currentPage >= totalPages - 1;
+            next.className = "px-2 py-1 border rounded bg-gray-200";
+            next.onclick = () => {
+                if (currentPage < totalPages - 1) {
+                    currentPage++;
+                    renderConflictPage(currentPage);
+                }
+            };
+
+            nav.appendChild(prev);
+            nav.appendChild(next);
+            actions.appendChild(nav);
+        }
+    }
+
+    modal.classList.remove('hidden');
+}
+
+function closeUploadResultModal() {
+    document.getElementById('upload-result-modal').classList.add('hidden');
+}
+
+function confirmOverwrite() {
+    const formData = new FormData();
+    formData.append('json_file', lastUploadedFile);
+    fetch(`${lastUploadUrl}?force=true`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        showUploadResult(data.success, data.message, data.success);
     });
 }
 
 
-    </script>
-    
+function renderConflictPage(pageIndex) {
+    const tbody = document.getElementById('conflict-table-body');
+    tbody.innerHTML = '';
+
+    const start = pageIndex * conflictsPerPage;
+    const end = Math.min(start + conflictsPerPage, duplicatedConflicts.length);
+    const currentSet = duplicatedConflicts.slice(start, end);
+
+    currentSet.forEach(d => {
+        const campos = Object.keys(d.nuevo || {});
+        campos.forEach(campo => {
+            const tr = document.createElement('tr');
+
+            const tdCampo = document.createElement('td');
+            tdCampo.className = "border px-2 py-1 font-semibold";
+            tdCampo.textContent = campo;
+
+            const tdExistente = document.createElement('td');
+            tdExistente.className = "border px-2 py-1";
+            tdExistente.textContent = d.ya_existe?.[campo] || "-";
+
+            const tdNuevo = document.createElement('td');
+            tdNuevo.className = "border px-2 py-1";
+            tdNuevo.textContent = d.nuevo?.[campo] || "-";
+
+            tr.appendChild(tdCampo);
+            tr.appendChild(tdExistente);
+            tr.appendChild(tdNuevo);
+            tbody.appendChild(tr);
+        });
+
+        const spacer = document.createElement('tr');
+        spacer.innerHTML = `<td colspan="3" class="border-t-2 border-gray-400 py-1"></td>`;
+        tbody.appendChild(spacer);
+    });
+}
+
+</script>
 {% endblock %}

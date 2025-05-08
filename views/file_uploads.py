@@ -1,39 +1,76 @@
 from flask import Blueprint, request, jsonify
 from services.json_loader import load_json_data
-from services.data_import_service import import_students, import_teachers
+from services.data_import_service import import_students, import_teachers, import_courses
 
 file_uploads_bp = Blueprint('file_uploads', __name__)
 
 @file_uploads_bp.route('/students', methods=['POST'])
 def upload_students():
-    print("✅ Entró a upload_students")  
     file = request.files.get('json_file')
+    force = request.args.get('force', 'false').lower() == 'true'
     if not file:
         return jsonify(success=False, message="No se subió ningún archivo.")
-
     try:
         data = load_json_data(file)
-        inserted, ignored = import_students(data)
-        return jsonify(
-            success=True,
-            message=f"{inserted} estudiantes importados. {ignored} ignorados por datos inválidos."
-        )
+        result = import_students(data, force=force)
+        if result["duplicated"] and not force:
+            return jsonify(success=False, duplicated=result["duplicated"], message=f"{len(result['duplicated'])} estudiantes ya existen.")
+        return jsonify(success=True, message=f"{result['inserted']} estudiantes importados. {result['ignored']} ignorados.")
     except Exception as e:
-        return jsonify(success=False, message=f'Error al importar estudiantes: {str(e)}')
+        return jsonify(success=False, message=str(e))
+
 
 @file_uploads_bp.route('/teachers', methods=['POST'])
 def upload_teachers():
     print("✅ Entró a upload_teachers")
     file = request.files.get('json_file')
+    force = request.args.get('force', 'false').lower() == 'true'
+
     if not file:
         return jsonify(success=False, message="No se subió ningún archivo.")
 
     try:
         data = load_json_data(file)
-        inserted, ignored = import_teachers(data)
+        result = import_teachers(data, force=force)
+
+        if result["duplicated"] and not force:
+            return jsonify(
+                success=False,
+                duplicated=result["duplicated"],
+                message=f"{len(result['duplicated'])} profesores ya existen. ¿Deseas sobrescribirlos?"
+            )
+
         return jsonify(
             success=True,
-            message=f"{inserted} profesores importados. {ignored} ignorados por duplicados o datos inválidos."
+            message=f"{result['inserted']} profesores importados. {result['ignored']} ignorados."
         )
+
     except Exception as e:
         return jsonify(success=False, message=f'Error al importar profesores: {str(e)}')
+
+    
+@file_uploads_bp.route('/courses', methods=['POST'])
+def upload_courses():
+    print("✅ Entró a upload_courses")
+    file = request.files.get('json_file')
+    force = request.args.get('force', 'false').lower() == 'true'
+    if not file:
+        return jsonify(success=False, message="No se subió ningún archivo.")
+
+    try:
+        data = load_json_data(file)
+        result = import_courses(data, force=force)
+
+        if result["duplicated"] and not force:
+            return jsonify(
+                success=False,
+                duplicated=result["duplicated"],
+                message=f"Se encontraron {len(result['duplicated'])} cursos ya existentes. ¿Deseas sobrescribirlos?"
+            )
+
+        return jsonify(
+            success=True,
+            message=f"{result['inserted']} cursos importados. {result['ignored']} ignorados."
+        )
+    except Exception as e:
+        return jsonify(success=False, message=f'Error al importar cursos: {str(e)}')
