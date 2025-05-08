@@ -5,7 +5,7 @@ from services.grade_service import get_students_in_section, update_grades_for_ta
 grades_bp = Blueprint('grades', __name__)
 
 @grades_bp.route('/sections/<int:section_id>/tasks/<int:task_id>/grading', methods=['GET', 'POST'])
-def task_grading(section_id, task_id):
+def grade_task(section_id, task_id):
     section = Section.query.get_or_404(section_id)
     task = Task.query.get_or_404(task_id)
 
@@ -19,7 +19,7 @@ def task_grading(section_id, task_id):
         success = update_grades_for_task(task_id, section_id, students, request.form)
         if success:
             flash('Calificaciones guardadas correctamente.', 'success')
-        return redirect(url_for('grades.task_grading', section_id=section_id, task_id=task_id))
+        return redirect(url_for('grades.grade_task', section_id=section_id, task_id=task_id))
 
     existing_grades = {g.student_id: g for g in task.grades}
 

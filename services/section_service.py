@@ -1,5 +1,6 @@
 from models import db
-from models.entities import Section, Period, Teacher
+from models.entities import Section, Student, Teacher
+from datetime import datetime
 
 def get_section_by_id(section_id):
     return Section.query.get_or_404(section_id)
@@ -34,6 +35,12 @@ def update_section(section_id, form_data):
         db.session.commit()
         return True
     return False
+
+def get_section_and_available_students(section_id):
+    section = Section.query.get_or_404(section_id)
+    current_ids = [ss.student_id for ss in section.student_sections]
+    available_students = Student.query.filter(Student.id.notin_(current_ids)).all()
+    return section, available_students, datetime.now().date()
 
 def delete_section_by_id(section_id):
     section = Section.query.get_or_404(section_id)
