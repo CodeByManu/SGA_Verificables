@@ -133,15 +133,31 @@ function showUploadResult(success = true, message = '', shouldReload = false, du
             nav.appendChild(next);
             actions.appendChild(nav);
         }
+        else {
+            const okBtn = document.createElement('button');
+            okBtn.textContent = "OK";
+            okBtn.className = "bg-blue-500 text-white px-4 py-2 rounded";
+            okBtn.onclick = function () {
+                closeUploadResultModal();
+                if (shouldReload) {
+                    location.reload();
+                }
+            };
+            actions.appendChild(okBtn);
+        }
     }
-
+    pendingReload = shouldReload;
     modal.classList.remove('hidden');
 }
 
+let pendingReload = false;
+
 function closeUploadResultModal() {
     document.getElementById('upload-result-modal').classList.add('hidden');
+    if (pendingReload) {
+        location.reload();
+    }
 }
-
 function confirmOverwrite() {
     const formData = new FormData();
     formData.append('json_file', lastUploadedFile);
