@@ -8,6 +8,7 @@ from .grades import grades_bp
 from .tasks import task_bp
 from .student_sections import student_section_bp
 from .home import home_bp
+from .file_uploads import file_uploads_bp
 
 __all__ = [
     "student_bp",
@@ -19,5 +20,6 @@ __all__ = [
     "grades_bp",
     "task_bp",
     "student_section_bp",
-    "home_bp"
+    "home_bp",
+    "file_uploads_bp",
 ]

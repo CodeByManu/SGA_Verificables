@@ -10,6 +10,15 @@
                 Administra la información de los estudiantes registrados en el sistema.
             </div>
         </div>
+
+        <div class="flex items-right mt-4 md:mt-0">
+            <label for="json-file-input-entity" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
+                <i class="fas fa-upload mr-2"></i> Cargar JSON
+            </label>
+            <input type="file" id="json-file-input-entity" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/students')">
+        </div>
+        
+
         <div class="mt-4 md:mt-0">
             <button
                 class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
@@ -198,6 +207,7 @@
 
 {% include 'students/modal_student_form.html' %}
 {% include 'students/modal_edit_student_form.html' %}
+{% include 'modal_upload_result.html' %}
 {% endblock %} 
 
 {% block scripts %}

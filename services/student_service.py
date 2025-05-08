@@ -8,13 +8,23 @@ def get_student_by_id(student_id):
     return Student.query.get_or_404(student_id)
 
 def create_student(form_data):
-    name = form_data.get('name')
-    email = form_data.get('email')
-    admission_date = form_data.get('admission_date')
+    try:
+        name = form_data.get('name')
+        email = form_data.get('email')
+        admission_date = form_data.get('admission_date')
 
-    new_student = Student(name=name, email=email, admission_date=admission_date)
-    db.session.add(new_student)
-    db.session.commit()
+        if not name or not email or not admission_date:
+            print("❌ Campos faltantes:", form_data)
+            raise ValueError("Faltan campos obligatorios")
+
+        student = Student(name=name, email=email, admission_date=admission_date)
+        db.session.add(student)
+        db.session.commit()
+
+    except Exception as e:
+        print(f"❌ Error al crear estudiante: {e}")
+        raise  # 🔁 vuelve a lanzar el error si quieres que Flask lo muestre
+
 
 def update_student(student_id, form_data):
     student = Student.query.get_or_404(student_id)

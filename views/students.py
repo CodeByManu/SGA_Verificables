@@ -21,8 +21,15 @@ def get_student_detail(student_id):
 
 @student_bp.route('/students', methods=['POST'])
 def post_student():
+    print("📥 POST recibido en /students")  
+    print("→ Data recibida:", request.form)
+
+    if not request.form.get('name') or not request.form.get('email') or not request.form.get('admission_date'):
+        flash("Todos los campos son obligatorios.", "danger")
+        return redirect(url_for('students.get_students'))
+
     create_student(request.form)
-    flash('Student added successfully!')
+    flash("Estudiante creado exitosamente.", "success")
     return redirect(url_for('students.get_students'))
 
 @student_bp.route('/students/<int:student_id>', methods=['POST'])
