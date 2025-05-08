@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from services.json_loader import load_json_data
-from services.data_import_service import import_students, import_teachers, import_courses
+from services.data_import_service import import_students, import_teachers, import_courses, import_students_by_section
 
 file_uploads_bp = Blueprint('file_uploads', __name__)
 
@@ -74,3 +74,31 @@ def upload_courses():
         )
     except Exception as e:
         return jsonify(success=False, message=f'Error al importar cursos: {str(e)}')
+
+
+@file_uploads_bp.route('/students_section', methods=['POST'])
+def upload_students_by_section():
+    print("✅ Entró a upload_students_by_section")
+    file = request.files.get('json_file')
+    if not file:
+        return jsonify(success=False, message="No se subió ningún archivo.")
+
+    try:
+        data = load_json_data(file)
+        force = request.args.get('force', 'false').lower() == 'true'
+        result = import_students_by_section(data, force=force)
+
+        if result["duplicated"]:
+            return jsonify(
+                success=False,
+                duplicated=result["duplicated"],
+                message=f"{len(result['duplicated'])} relaciones ya existen. ¿Deseas revisarlas?"
+            )
+
+        return jsonify(
+            success=True,
+            message=f"{result['inserted']} relaciones creadas. {result['ignored']} ignoradas por estar incompletas."
+        )
+
+    except Exception as e:
+        return jsonify(success=False, message=f'Error al importar alumnos por sección: {str(e)}')
