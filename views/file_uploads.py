@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from services.json_loader import load_json_data
-from services.data_import_service import import_students, import_teachers, import_courses, import_students_by_section
+from services.data_import_service import import_students, import_teachers, import_courses, import_students_by_section, import_periods
 
 file_uploads_bp = Blueprint('file_uploads', __name__)
 
@@ -102,3 +102,30 @@ def upload_students_by_section():
 
     except Exception as e:
         return jsonify(success=False, message=f'Error al importar alumnos por sección: {str(e)}')
+
+@file_uploads_bp.route('/periods', methods=['POST'])
+def upload_course_periods():
+    print("✅ Entró a upload_course_periods")
+    file = request.files.get('json_file')
+    force = request.args.get('force', 'false').lower() == 'true'
+
+    if not file:
+        return jsonify(success=False, message="No se subió ningún archivo.")
+
+    try:
+        data = load_json_data(file)
+        result = import_periods(data, force=force)
+
+        if result["duplicated"] and not force:
+            return jsonify(
+                success=False,
+                duplicated=result["duplicated"],
+                message=f"{len(result['duplicated'])} periodos ya existen. ¿Deseas sobrescribirlos?"
+            )
+
+        return jsonify(
+            success=True,
+            message=f"{result['inserted']} periodos creados. {result['ignored']} ignorados."
+        )
+    except Exception as e:
+        return jsonify(success=False, message=f'Error al importar periodos: {str(e)}')

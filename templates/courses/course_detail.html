@@ -52,6 +52,12 @@
         <h3 class="text-xl font-semibold text-teal-700">
             <i class="fas fa-calendar-alt mr-2"></i> Periodos
         </h3>
+        <div class="flex items-right mt-4 md:mt-0">
+            <label for="json-file-input-teachers" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
+                <i class="fas fa-upload mr-2"></i> Cargar JSON
+            </label>
+            <input type="file" id="json-file-input-teachers" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/periods')">
+        </div>
         <button
             class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
             onclick="openModal()"
@@ -112,6 +118,7 @@
 
 {% include "periods/modal_period_form.html" %}
 {% include 'periods/modal_edit_period_form.html' %}
+{% include 'modal_upload_result.html' %}
 
 
 {% endblock %}
