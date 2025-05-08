@@ -8,9 +8,7 @@
         <p id="upload-result-message" class="text-gray-600">Los datos fueron procesados exitosamente.</p>
 
         <div class="mt-6">
-            <button onclick="closeUploadResultModal()" class="px-4 py-2 rounded bg-teal-500 text-white hover:bg-teal-600">
-                Cerrar
-            </button>
+
         </div>
     </div>
 </div>
@@ -50,17 +48,21 @@ function handleJsonUpload(input, endpointUrl) {
     })
     .then(response => response.json())
     .then(data => {
+        const tipo = endpointUrl.includes("teacher") ? "profesores" :
+                     endpointUrl.includes("student") ? "estudiantes" :
+                     "datos";
         if (data.success) {
-            showUploadResult(true, data.message);
-            setTimeout(() => location.reload(), 1500);
+            showUploadResult(true, `${data.message}`);
+            setTimeout(() => location.reload(), 2000);
         } else {
-            showUploadResult(false, data.message);
+            showUploadResult(false, `${tipo}: ${data.message}`);
         }
     })
     .catch(() => {
         showUploadResult(false, "Error de red o de servidor.");
     });
 }
+
 
     </script>
     
