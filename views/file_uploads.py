@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from services.json_loader import load_json_data
-from services.data_import_service import import_students, import_teachers, import_courses, import_students_by_section, import_periods
+from services.data_import_service import import_students, import_teachers, import_courses, import_students_by_section, import_course_periods, import_sections_with_evaluations
 
 file_uploads_bp = Blueprint('file_uploads', __name__)
 
@@ -114,7 +114,7 @@ def upload_course_periods():
 
     try:
         data = load_json_data(file)
-        result = import_periods(data, force=force)
+        result = import_course_periods(data, force=force)
 
         if result["duplicated"] and not force:
             return jsonify(
@@ -129,3 +129,31 @@ def upload_course_periods():
         )
     except Exception as e:
         return jsonify(success=False, message=f'Error al importar periodos: {str(e)}')
+
+@file_uploads_bp.route('/sections_with_eval', methods=['POST'])
+def upload_sections_with_evaluations():
+    print("✅ Entró a upload_sections_with_evaluations")
+    file = request.files.get('json_file')
+    force = request.args.get('force', 'false').lower() == 'true'
+
+    if not file:
+        return jsonify(success=False, message="No se subió ningún archivo.")
+
+    try:
+        data = load_json_data(file)
+        result = import_sections_with_evaluations(data, force=force)
+
+        if result["duplicated"] and not force:
+            return jsonify(
+                success=False,
+                duplicated=result["duplicated"],
+                message=f"{len(result['duplicated'])} secciones ya existen. ¿Deseas sobrescribirlas?"
+            )
+
+        return jsonify(
+            success=True,
+            message=f"{result['sections_inserted']} secciones creadas. {result['ignored']} ignoradas."
+        )
+
+    except Exception as e:
+        return jsonify(success=False, message=f'Error al importar secciones con evaluación: {str(e)}')
