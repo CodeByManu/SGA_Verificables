@@ -6,6 +6,7 @@ class Course(db.Model):
     code = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
+    credits = db.Column(db.Integer)
 
     prerequisites_required = db.relationship(
         'Prerequisite',
