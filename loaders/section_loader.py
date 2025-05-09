@@ -1,27 +1,31 @@
 from models import db, Section, Teacher, Evaluation, Task, Period
 from datetime import date
+from utils.utils import (
+    validate_required_fields,
+    standard_error,
+    format_duplicate,
+    safe_commit,
+    standard_return
+)
 
 def validate_section_entry(entry):
     if not isinstance(entry, dict):
         return None, "Entrada no válida: no es un diccionario"
 
-    section_id = entry.get("id")
-    period_id = entry.get("instancia_curso")
-    teacher_id = entry.get("profesor_id")
-    evaluation_data = entry.get("evaluacion")
-
-    if not section_id or not period_id or not teacher_id or not evaluation_data:
-        return None, "Faltan campos obligatorios en la sección"
+    context = f"Sección ID {entry.get('id') or 'N/A'}"
+    required, error = validate_required_fields(entry, ['id', 'instancia_curso', 'profesor_id', 'evaluacion'], context)
+    if error:
+        return None, error
 
     return {
-        "id": section_id,
-        "period_id": period_id,
-        "teacher_id": teacher_id,
+        "id": entry["id"],
+        "period_id": entry["instancia_curso"],
+        "teacher_id": entry["profesor_id"],
         "number": entry.get("numero"),
-        "evaluation_data": evaluation_data,
-        "topics": evaluation_data.get("topicos"),
-        "topic_combinations": evaluation_data.get("combinacion_topicos", []),
-        "evaluation_weight_type": evaluation_data.get("tipo", "desconocido")
+        "evaluation_data": entry["evaluacion"],
+        "topics": entry["evaluacion"].get("topicos"),
+        "topic_combinations": entry["evaluacion"].get("combinacion_topicos", []),
+        "evaluation_weight_type": entry["evaluacion"].get("tipo", "desconocido")
     }, None
 
 def validate_topic_combinations(combinations, weight_type):
@@ -49,9 +53,7 @@ def validate_topics(topics, combinations):
             return f"El tópico '{topic_id}' no tiene definición."
 
         topic_info = topics[topic_id]
-        required_fields = ["tipo", "cantidad"]
-
-        for field in required_fields:
+        for field in ["tipo", "cantidad"]:
             if field not in topic_info:
                 return f"El tópico '{topic_id}' no tiene el campo obligatorio '{field}'."
 
@@ -67,69 +69,89 @@ def validate_topics(topics, combinations):
 
     return None
 
-def format_section_duplicate(existing, section_input):
-    return {
-        "ya_existe": {
-            "id": existing.id,
-            "period_id": existing.period_id,
-            "teacher_id": existing.teacher_id
-        },
-        "nuevo": {
-            "id": section_input["id"],
-            "period_id": section_input["period_id"],
-            "teacher_id": section_input["teacher_id"]
-        }
-    }
+def create_task(evaluation_id, topic_id, nombre, valores, obligatorias):
+    for i in range(len(valores)):
+        task_name = f"{nombre or f'Tópico {topic_id}'} #{i+1}"
+        task = Task(
+            evaluation_id=evaluation_id,
+            name=task_name,
+            date=date.today(),
+            weight=valores[i],
+            is_optional=not obligatorias[i]
+        )
+        db.session.add(task)
+
+def create_evaluation_and_tasks(section_id, topic_combination, topic_info):
+    evaluation = Evaluation(
+        name=topic_combination.get("nombre", f"Evaluación {topic_combination['id']}"),
+        section_id=section_id,
+        tasks_weight_type=topic_info["tipo"],
+        weight=topic_combination.get("valor", 1.0)
+    )
+    db.session.add(evaluation)
+    db.session.flush()
+
+    create_task(
+        evaluation.id,
+        topic_combination["id"],
+        topic_combination.get("nombre"),
+        topic_info["valores"],
+        topic_info["obligatorias"]
+    )
 
 def import_sections_with_evaluations(data, force=False):
     sections_data = data.get("secciones", [])
     inserted = 0
-    ignored = 0
     duplicated = []
+    errors = []
 
     if not isinstance(sections_data, list):
         return {
             "sections_inserted": 0,
             "ignored": 0,
             "duplicated": [],
-            "error": "El campo 'secciones' no es una lista"
+            "errors": ["El campo 'secciones' no es una lista"]
         }
 
     for entry in sections_data:
         section_input, error = validate_section_entry(entry)
         if error:
             print(f"⚠️ Sección ignorada: {error}")
-            ignored += 1
+            errors.append(error)
             continue
 
         teacher = Teacher.query.get(section_input["teacher_id"])
         period = Period.query.get(section_input["period_id"])
 
         if not teacher:
-            print(f"❌ Profesor con id={section_input['teacher_id']} no existe.")
-            ignored += 1
+            msg = f"❌ Profesor con id={section_input['teacher_id']} no existe."
+            print(msg)
+            errors.append(msg)
             continue
 
         if not period:
-            print(f"❌ Periodo con id={section_input['period_id']} no existe.")
-            ignored += 1
+            msg = f"❌ Periodo con id={section_input['period_id']} no existe."
+            print(msg)
+            errors.append(msg)
             continue
 
         comb_error = validate_topic_combinations(section_input["topic_combinations"], section_input["evaluation_weight_type"])
         if comb_error:
-            print(f"❌ Combinación inválida: {comb_error}")
-            ignored += 1
+            msg = f"❌ Combinación inválida: {comb_error}"
+            print(msg)
+            errors.append(msg)
             continue
 
         topics_error = validate_topics(section_input["topics"], section_input["topic_combinations"])
         if topics_error:
-            print(f"❌ Tópicos inválidos: {topics_error}")
-            ignored += 1
+            msg = f"❌ Tópicos inválidos: {topics_error}"
+            print(msg)
+            errors.append(msg)
             continue
 
         existing = Section.query.get(section_input["id"])
         if existing and not force:
-            duplicated.append(format_section_duplicate(existing, section_input))
+            duplicated.append(format_duplicate(existing.__dict__, section_input, ["id", "period_id", "teacher_id"]))
             continue
         elif existing and force:
             for evaluation in existing.evaluations:
@@ -152,35 +174,13 @@ def import_sections_with_evaluations(data, force=False):
         for comb in section_input["topic_combinations"]:
             topic_id = str(comb.get("id"))
             topic_info = section_input["topics"].get(topic_id)
-
-            evaluation = Evaluation(
-                name=comb.get("nombre", f"Evaluación {topic_id}"),
-                section_id=section.id,
-                tasks_weight_type=topic_info["tipo"],
-                weight=comb.get("valor", 1.0)
-            )
-            db.session.add(evaluation)
-            db.session.flush()
-
-            for i in range(topic_info["cantidad"]):
-                task_name = f"{comb.get('nombre', f'Tópico {topic_id}')} #{i+1}"
-                task_weight = topic_info["valores"][i]
-                is_optional = not topic_info["obligatorias"][i]
-
-                task = Task(
-                    evaluation_id=evaluation.id,
-                    name=task_name,
-                    date=date.today(),
-                    weight=task_weight,
-                    is_optional=is_optional
-                )
-                db.session.add(task)
+            create_evaluation_and_tasks(section.id, comb, topic_info)
 
         inserted += 1
 
-    db.session.commit()
-    return {
-        "sections_inserted": inserted,
-        "ignored": ignored,
-        "duplicated": duplicated
-    }
+    safe_commit()
+    result = standard_return(inserted=inserted, ignored=len(errors), duplicated=duplicated, errors=errors)
+    result["sections_inserted"] = result.pop("inserted")
+    return result
+
+

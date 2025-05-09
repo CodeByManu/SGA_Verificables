@@ -1,68 +1,69 @@
 from models import db, Student
+from utils.utils import (
+    is_valid_email,
+    is_valid_year,
+    standard_error,
+    format_duplicate,
+    safe_commit,
+    standard_return,
+    validate_required_fields
+)
 
 def validate_student(item):
-    student_id = item.get('id')
-    name = item.get('nombre')
+    context = f"ID {item.get('id') or 'N/A'}"
+    valid_data, error = validate_required_fields(item, ['nombre', 'correo', 'anio_ingreso'], context)
+    if error:
+        return None, error
+
     email = item.get('correo')
-    admission_date = item.get('anio_ingreso')
+    if not is_valid_email(email):
+        return None, standard_error(context, f"Correo inválido: {email}")
 
-    if not name or not email or not admission_date:
-        return None, f"ID {student_id or 'N/A'}: Missing required fields."
+    admission_year = item.get('anio_ingreso')
+    if not is_valid_year(admission_year):
+        return None, standard_error(context, f"Año de ingreso fuera de rango: {admission_year}")
 
-    if '@' not in email:
-        return None, f"ID {student_id or 'N/A'}: Invalid email address: {email}"
-
-    if not (1940 <= int(admission_date) <= 2025):
-        return None, f"ID {student_id or 'N/A'}: Admission year out of range: {admission_date}"
-
-    return Student(name=name, email=email, admission_date=admission_date), None
-
-def handle_student_duplicates(existing, item):
-    return {
-        "ya_existe": {
-            "id": existing.id,
-            "name": existing.name,
-            "email": existing.email,
-            "admission_date": existing.admission_date
-        },
-        "nuevo": {
-            "id": item.get('id'),
-            "name": item.get('nombre'),
-            "email": item.get('email'),
-            "admission_date": item.get('anio_ingreso')
-        }
-    }
+    student = Student(
+        name=item['nombre'],
+        email=email,
+        admission_date=admission_year
+    )
+    return student, None
 
 def import_students(data, force=False):
     students = data.get('alumnos', [])
     inserted = 0
     duplicated = []
-    mistakes = []
+    errors = []
 
     for item in students:
         student, error = validate_student(item)
 
         if error:
-            mistakes.append(error)
+            print(f"⚠️ {error}")
+            errors.append(error)
             continue
 
         existing = Student.query.filter_by(email=student.email).first()
 
         if existing and not force:
-            duplicated.append(handle_student_duplicates(existing, item))
+            duplicated.append(format_duplicate(existing.__dict__, item, ['id', 'name', 'email', 'admission_date']))
             continue
 
         if existing and force:
-            db.session.delete(existing)
-            db.session.flush()
+            existing.name = item["nombre"]
+            existing.email = item["correo"]
+            existing.admission_date = item["anio_ingreso"]
+            inserted += 1
+            continue
 
-        db.session.add(student)
+        db.session.add(Student(
+            id=item.get("id"),
+            name=item["nombre"],
+            email=item["correo"],
+            admission_date=item["anio_ingreso"]
+        ))
         inserted += 1
 
-    db.session.commit()
-    return {
-        "inserted": inserted,
-        "ignored": len(mistakes),
-        "duplicated": duplicated,
-        "mistakes": mistakes
-    }
+    safe_commit()
+    return standard_return(inserted=inserted, ignored=len(errors), duplicated=duplicated, errors=errors)
