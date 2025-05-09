@@ -56,16 +56,16 @@
             <i class="fas fa-layer-group mr-2"></i> Secciones
         </h3>
         <div class="flex items-right mt-4 md:mt-0">
-            <label for="json-file-input-teachers" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
+            <label for="json-file-input-sections-eval" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
                 <i class="fas fa-upload mr-2"></i> Cargar JSON Curso con Secciones
             </label>
-            <input type="file" id="json-file-input-teachers" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/sections_with_eval')">
+            <input type="file" id="json-file-input-sections-eval" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/sections_with_eval')">
         </div>
         <div class="flex items-right mt-4 md:mt-0">
-            <label for="json-file-input-teachers" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
+            <label for="json-file-input-students-section" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
                 <i class="fas fa-upload mr-2"></i> Cargar JSON Alumnos-secciones
             </label>
-            <input type="file" id="json-file-input-teachers" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/students_section')">
+            <input type="file" id="json-file-input-students-section" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/students_section')">
         </div>
         <button
             class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center"

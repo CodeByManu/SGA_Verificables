@@ -1,5 +1,4 @@
-# loaders/grades_loader.py
-from models import db, Grade
+from models import db, Grade, Task, Student
 
 def import_grades(data, force=False):
     notas = data.get("notas", [])
@@ -12,7 +11,11 @@ def import_grades(data, force=False):
         task_id = entry.get("topico_id")
         nota = entry.get("nota")
 
-        if not student_id or not task_id or nota is None:
+        # Verificar existencia de entidades
+        task = Task.query.get(task_id)
+        student = Student.query.get(student_id)
+
+        if not task or not student or nota is None:
             ignored += 1
             continue
 
@@ -23,7 +26,7 @@ def import_grades(data, force=False):
                     "ya_existe": {
                         "student_id": student_id,
                         "task_id": task_id,
-                        "nota_actual": existing.value
+                        "nota": existing.value
                     },
                     "nuevo": {
                         "student_id": student_id,
@@ -31,9 +34,11 @@ def import_grades(data, force=False):
                         "nota": nota
                     }
                 })
+                print(f"🔁 Nota duplicada para alumno_id={student_id}, task_id={task_id}, nota existente={existing.value}, nueva={nota}")
                 continue
             else:
                 existing.value = nota
+                inserted += 1
         else:
             grade = Grade(student_id=student_id, task_id=task_id, value=nota)
             db.session.add(grade)

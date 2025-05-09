@@ -12,16 +12,34 @@
             </div>
         </div>
         <div class="flex items-right mt-4 md:mt-0">
-            <label for="json-file-input-teachers" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
-                <i class="fas fa-upload mr-2"></i> Cargar JSON alumnos-notas
-            </label>
-            <input type="file" id="json-file-input-teachers" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/grades')">
-        </div>
-        <div class="flex items-right mt-4 md:mt-0">
-            <label for="json-file-input-entity" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
+            <label for="json-file-input-course" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
                 <i class="fas fa-upload mr-2"></i> Cargar JSON cursos
             </label>
-            <input type="file" id="json-file-input-entity" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/courses')">
+            <input type="file" id="json-file-input-course" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/courses')">
+        </div>
+        <div class="flex items-right mt-4 md:mt-0">
+            <label for="json-file-input-periods" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
+                <i class="fas fa-upload mr-2"></i> Cargar JSON instancias curso
+            </label>
+            <input type="file" id="json-file-input-periods" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/periods')">
+        </div>
+        <div class="flex items-right mt-4 md:mt-0">
+            <label for="json-file-input-sections-eval" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
+                <i class="fas fa-upload mr-2"></i> Cargar JSON Curso con Secciones
+            </label>
+            <input type="file" id="json-file-input-sections-eval" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/sections_with_eval')">
+        </div>
+        <div class="flex items-right mt-4 md:mt-0">
+            <label for="json-file-input-students-section" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
+                <i class="fas fa-upload mr-2"></i> Cargar JSON Alumnos-secciones
+            </label>
+            <input type="file" id="json-file-input-students-section" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/students_section')">
+        </div>
+        <div class="flex items-right mt-4 md:mt-0">
+            <label for="json-file-input-grades" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
+                <i class="fas fa-upload mr-2"></i> Cargar JSON alumnos-notas
+            </label>
+            <input type="file" id="json-file-input-grades" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/grades')">
         </div>
         <div class="mt-4 md:mt-0">
             <button
