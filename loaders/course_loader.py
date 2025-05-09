@@ -82,7 +82,7 @@ def import_courses(data, force=False):
         existing = Course.query.filter_by(code=code).first()
         if existing and not force:
             duplicated.append(handle_course_duplicates(existing, item))
-            continue
+            continue    
 
         if existing and force:
             db.session.delete(existing)

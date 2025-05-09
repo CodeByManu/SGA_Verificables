@@ -34,7 +34,7 @@ def handle_student_duplicates(existing, item):
     }
 
 def import_students(data, force=False):
-    students = data.get('alumnos', [])  # ✅ español
+    students = data.get('alumnos', [])
     inserted = 0
     duplicated = []
     mistakes = []
