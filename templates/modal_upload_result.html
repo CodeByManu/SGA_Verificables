@@ -53,11 +53,11 @@ function handleJsonUpload(input, endpointUrl) {
         lastUploadUrl = endpointUrl;
 
         if (data.success) {
-            showUploadResult(true, data.message, true, data.errores);
+            showUploadResult(true, data.message, true, data.mistakes);
         } else if (data.duplicated) {
-            showUploadResult(false, data.message, false, data.duplicated, data.errores);
+            showUploadResult(false, data.message, false, data.duplicated, data.mistakes);
         } else {
-            showUploadResult(false, data.message, false, [], data.errores);
+            showUploadResult(false, data.message, false, [], data.mistakes);
         }
     })
     .catch(() => {
@@ -65,7 +65,7 @@ function handleJsonUpload(input, endpointUrl) {
     });
 }
 
-function showUploadResult(success = true, message = '', shouldReload = false, duplicated = [], errores = []) {
+function showUploadResult(success = true, message = '', shouldReload = false, duplicated = [], mistakes = []) {
     const modal = document.getElementById('upload-result-modal');
     const title = document.getElementById('upload-result-title');
     const msg = document.getElementById('upload-result-message');
@@ -75,7 +75,7 @@ function showUploadResult(success = true, message = '', shouldReload = false, du
 
     title.textContent = success ? "Carga exitosa" : "Error en la carga";
     msg.innerHTML = `<span>${message}</span>`;
-    if (errores && errores.length > 0) {
+    if (mistakes && mistakes.length > 0) {
         const errorTitle = document.createElement("div");
         errorTitle.textContent = "⚠️ Errores encontrados:";
         errorTitle.className = "text-left text-sm font-semibold text-red-600 mt-2";
@@ -83,7 +83,7 @@ function showUploadResult(success = true, message = '', shouldReload = false, du
 
         const errorList = document.createElement("ul");
         errorList.className = "text-left text-sm text-red-500 max-h-48 overflow-y-auto mt-1";
-        errores.forEach(err => {
+        mistakes.forEach(err => {
             const li = document.createElement("li");
             li.textContent = "• " + err;
             errorList.appendChild(li);

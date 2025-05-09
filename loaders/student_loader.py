@@ -1,70 +1,68 @@
 from models import db, Student
 
+def validate_student(item):
+    student_id = item.get('id')
+    name = item.get('nombre')
+    email = item.get('correo')
+    admission_date = item.get('anio_ingreso')
+
+    if not name or not email or not admission_date:
+        return None, f"ID {student_id or 'N/A'}: Missing required fields."
+
+    if '@' not in email:
+        return None, f"ID {student_id or 'N/A'}: Invalid email address: {email}"
+
+    if not (1940 <= int(admission_date) <= 2025):
+        return None, f"ID {student_id or 'N/A'}: Admission year out of range: {admission_date}"
+
+    return Student(name=name, email=email, admission_date=admission_date), None
+
+def handle_student_duplicates(existing, item):
+    return {
+        "ya_existe": {
+            "id": existing.id,
+            "name": existing.name,
+            "email": existing.email,
+            "admission_date": existing.admission_date
+        },
+        "nuevo": {
+            "id": item.get('id'),
+            "name": item.get('nombre'),
+            "email": item.get('email'),
+            "admission_date": item.get('anio_ingreso')
+        }
+    }
+
 def import_students(data, force=False):
-    alumnos = data.get('alumnos', [])
+    students = data.get('alumnos', [])  # ✅ español
     inserted = 0
-    ignored = 0
     duplicated = []
-    errores = []
+    mistakes = []
 
-    for item in alumnos:
-        student_id = item.get('id')
-        name = item.get('nombre')
-        email = item.get('correo')
-        admission_date = item.get('anio_ingreso')
+    for item in students:
+        student, error = validate_student(item)
 
-        if not name or not email or not admission_date:
-            msg = f"ID {student_id or 'N/A'}: Faltan campos obligatorios."
-            print(f"⚠️ {msg}")
-            errores.append(msg)
-            ignored += 1
+        if error:
+            mistakes.append(error)
             continue
 
-        if '@' not in email:
-            msg = f"ID {student_id or 'N/A'}: Correo inválido: {email}"
-            print(f"⚠️ {msg}")
-            errores.append(msg)
-            ignored += 1
-            continue
+        existing = Student.query.filter_by(email=student.email).first()
 
-        if not (1940 <= int(admission_date) <= 2025):
-            msg = f"ID {student_id or 'N/A'}: Año fuera de rango: {admission_date}"
-            print(f"⚠️ {msg}")
-            errores.append(msg)
-            ignored += 1
-            continue
-
-        existing = Student.query.filter_by(email=email).first()
         if existing and not force:
-            duplicated.append({
-                "ya_existe": {
-                    "id": existing.id,
-                    "nombre": existing.name,
-                    "correo": existing.email,
-                    "anio_ingreso": existing.admission_date
-                },
-                "nuevo": {
-                    "id": student_id,
-                    "nombre": name,
-                    "correo": email,
-                    "anio_ingreso": admission_date
-                }
-            })
+            duplicated.append(handle_student_duplicates(existing, item))
             continue
 
         if existing and force:
             db.session.delete(existing)
             db.session.flush()
 
-        student = Student(name=name, email=email, admission_date=admission_date)
         db.session.add(student)
         inserted += 1
 
     db.session.commit()
     return {
         "inserted": inserted,
-        "ignored": ignored,
+        "ignored": len(mistakes),
         "duplicated": duplicated,
-        "errores": errores
+        "mistakes": mistakes
     }
-

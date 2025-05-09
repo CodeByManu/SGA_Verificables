@@ -1,14 +1,13 @@
 from models import db, Course, Prerequisite
 
 def validate_course(item):
-    """Valida y convierte un diccionario JSON en instancia Course."""
     course_id = item.get("id")
     code = item.get("codigo")
     name = item.get("descripcion")
     credits = item.get("creditos")
 
     if not code or not name:
-        return None
+        return None, f"ID {course_id or 'N/A'}: Faltan campos obligatorios ('codigo' o 'descripcion')."
 
     course = Course(
         id=course_id,
@@ -17,10 +16,9 @@ def validate_course(item):
         description=name,
         credits=credits
     )
-    return course
+    return course, None
 
 def handle_course_duplicates(existing, item):
-    """Devuelve el objeto duplicado formateado para mostrar en el modal."""
     return {
         "ya_existe": {
             "id": existing.id,
@@ -39,7 +37,6 @@ def handle_course_duplicates(existing, item):
     }
 
 def create_prerequisite_relations(pending_list):
-    """Crea relaciones Prerequisite usando los códigos de cursos."""
     for main_code, req_codes in pending_list:
         main_course = Course.query.filter_by(code=main_code).first()
         for req_code in req_codes:
@@ -47,7 +44,7 @@ def create_prerequisite_relations(pending_list):
 
             if not main_course:
                 print(f"❌ Curso principal con código '{main_code}' no existe.")
-                break 
+                break
 
             if not required_course:
                 print(f"⚠️ Curso requerido con código '{req_code}' no existe. No se creará la relación.")
@@ -66,19 +63,20 @@ def create_prerequisite_relations(pending_list):
     db.session.commit()
 
 def import_courses(data, force=False):
-    cursos = data.get("cursos", [])
+    courses = data.get("cursos", [])
     inserted = 0
-    ignored = 0
     duplicated = []
+    mistakes = []
     prereq_pending = []
 
-    for item in cursos:
+    for item in courses:
         code = item.get("codigo")
         requisitos = item.get("requisitos", [])
-        course = validate_course(item)
 
-        if not course:
-            ignored += 1
+        course, error = validate_course(item)
+        if error:
+            print(f"⚠️ {error}")
+            mistakes.append(error)
             continue
 
         existing = Course.query.filter_by(code=code).first()
@@ -99,6 +97,7 @@ def import_courses(data, force=False):
 
     return {
         "inserted": inserted,
-        "ignored": ignored,
-        "duplicated": duplicated
+        "ignored": len(mistakes),
+        "duplicated": duplicated,
+        "mistakes": mistakes
     }
