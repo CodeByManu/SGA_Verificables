@@ -48,16 +48,16 @@ function handleJsonUpload(input, endpointUrl) {
         body: formData
     })
     .then(response => response.json())
-    .then(data => {
+        .then(data => {
         lastUploadedFile = file;
         lastUploadUrl = endpointUrl;
 
         if (data.success) {
-            showUploadResult(true, data.message, true);
+            showUploadResult(true, data.message, true, data.errores);
         } else if (data.duplicated) {
-            showUploadResult(false, data.message, false, data.duplicated);
+            showUploadResult(false, data.message, false, data.duplicated, data.errores);
         } else {
-            showUploadResult(false, data.message, false);
+            showUploadResult(false, data.message, false, [], data.errores);
         }
     })
     .catch(() => {
@@ -65,7 +65,7 @@ function handleJsonUpload(input, endpointUrl) {
     });
 }
 
-function showUploadResult(success = true, message = '', shouldReload = false, duplicated = []) {
+function showUploadResult(success = true, message = '', shouldReload = false, duplicated = [], errores = []) {
     const modal = document.getElementById('upload-result-modal');
     const title = document.getElementById('upload-result-title');
     const msg = document.getElementById('upload-result-message');
@@ -74,7 +74,24 @@ function showUploadResult(success = true, message = '', shouldReload = false, du
     const actions = document.getElementById('upload-result-actions');
 
     title.textContent = success ? "Carga exitosa" : "Error en la carga";
-    msg.textContent = message;
+    msg.innerHTML = `<span>${message}</span>`;
+    if (errores && errores.length > 0) {
+        const errorTitle = document.createElement("div");
+        errorTitle.textContent = "⚠️ Errores encontrados:";
+        errorTitle.className = "text-left text-sm font-semibold text-red-600 mt-2";
+        msg.appendChild(errorTitle);
+
+        const errorList = document.createElement("ul");
+        errorList.className = "text-left text-sm text-red-500 max-h-48 overflow-y-auto mt-1";
+        errores.forEach(err => {
+            const li = document.createElement("li");
+            li.textContent = "• " + err;
+            errorList.appendChild(li);
+        });
+        msg.appendChild(errorList);
+    }
+
+
 
     conflictsTableBody.innerHTML = '';
     conflictsWrapper.classList.add('hidden');

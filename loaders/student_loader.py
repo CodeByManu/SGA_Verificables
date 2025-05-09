@@ -5,6 +5,7 @@ def import_students(data, force=False):
     inserted = 0
     ignored = 0
     duplicated = []
+    errores = []
 
     for item in alumnos:
         student_id = item.get('id')
@@ -13,6 +14,23 @@ def import_students(data, force=False):
         admission_date = item.get('anio_ingreso')
 
         if not name or not email or not admission_date:
+            msg = f"ID {student_id or 'N/A'}: Faltan campos obligatorios."
+            print(f"⚠️ {msg}")
+            errores.append(msg)
+            ignored += 1
+            continue
+
+        if '@' not in email:
+            msg = f"ID {student_id or 'N/A'}: Correo inválido: {email}"
+            print(f"⚠️ {msg}")
+            errores.append(msg)
+            ignored += 1
+            continue
+
+        if not (1940 <= int(admission_date) <= 2025):
+            msg = f"ID {student_id or 'N/A'}: Año fuera de rango: {admission_date}"
+            print(f"⚠️ {msg}")
+            errores.append(msg)
             ignored += 1
             continue
 
@@ -46,5 +64,7 @@ def import_students(data, force=False):
     return {
         "inserted": inserted,
         "ignored": ignored,
-        "duplicated": duplicated
+        "duplicated": duplicated,
+        "errores": errores
     }
+

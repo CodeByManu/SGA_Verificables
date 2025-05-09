@@ -1,4 +1,4 @@
-from models import db, Section, Teacher, Evaluation, Task
+from models import db, Section, Teacher, Evaluation, Task, Period 
 from datetime import date
 
 def import_sections_with_evaluations(data, force=False):
@@ -28,6 +28,19 @@ def import_sections_with_evaluations(data, force=False):
         topicos = evaluacion.get("topicos") if evaluacion else None
 
         if not section_id or not period_id or not teacher_id or not evaluacion:
+            ignored += 1
+            continue
+        
+        teacher = Teacher.query.get(teacher_id)
+        period = Period.query.get(period_id)
+
+        if not teacher:
+            print(f"❌ Ignorado: profesor con id={teacher_id} no existe.")
+            ignored += 1
+            continue
+
+        if not period:
+            print(f"❌ Ignorado: periodo con id={period_id} no existe.")
             ignored += 1
             continue
 

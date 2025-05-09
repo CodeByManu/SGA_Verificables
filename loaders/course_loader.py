@@ -44,16 +44,25 @@ def create_prerequisite_relations(pending_list):
         main_course = Course.query.filter_by(code=main_code).first()
         for req_code in req_codes:
             required_course = Course.query.filter_by(code=req_code).first()
-            if main_course and required_course:
-                exists = Prerequisite.query.filter_by(
+
+            if not main_course:
+                print(f"❌ Curso principal con código '{main_code}' no existe.")
+                break 
+
+            if not required_course:
+                print(f"⚠️ Curso requerido con código '{req_code}' no existe. No se creará la relación.")
+                continue
+
+            exists = Prerequisite.query.filter_by(
+                main_course_id=main_course.id,
+                required_course_id=required_course.id
+            ).first()
+            if not exists:
+                db.session.add(Prerequisite(
                     main_course_id=main_course.id,
                     required_course_id=required_course.id
-                ).first()
-                if not exists:
-                    db.session.add(Prerequisite(
-                        main_course_id=main_course.id,
-                        required_course_id=required_course.id
-                    ))
+                ))
+
     db.session.commit()
 
 def import_courses(data, force=False):

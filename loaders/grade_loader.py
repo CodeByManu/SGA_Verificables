@@ -21,6 +21,8 @@ def import_grades(data, force=False):
 
         existing = Grade.query.filter_by(student_id=student_id, task_id=task_id).first()
         if existing:
+            if existing.value == nota:
+                continue
             if not force:
                 duplicated.append({
                     "ya_existe": {
