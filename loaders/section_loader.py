@@ -81,15 +81,28 @@ def create_task(evaluation_id, topic_id, nombre, valores, obligatorias):
         )
         db.session.add(task)
 
-def create_evaluation_and_tasks(section_id, topic_combination, topic_info):
-    evaluation = Evaluation(
-        name=topic_combination.get("nombre", f"Evaluación {topic_combination['id']}"),
+def create_evaluation_and_tasks(section_id, topic_combination, topic_info, force=False):
+    existing_eval = Evaluation.query.filter_by(
         section_id=section_id,
-        tasks_weight_type=topic_info["tipo"],
-        weight=topic_combination.get("valor", 1.0)
-    )
-    db.session.add(evaluation)
-    db.session.flush()
+        name=topic_combination.get("nombre")
+    ).first()
+
+    if existing_eval and force:
+        for task in existing_eval.tasks:
+            db.session.delete(task)
+        existing_eval.tasks_weight_type = topic_info["tipo"]
+        existing_eval.weight = topic_combination.get("valor", 1.0)
+        db.session.flush()
+        evaluation = existing_eval
+    else:
+        evaluation = Evaluation(
+            name=topic_combination.get("nombre", f"Evaluación {topic_combination['id']}"),
+            section_id=section_id,
+            tasks_weight_type=topic_info["tipo"],
+            weight=topic_combination.get("valor", 1.0)
+        )
+        db.session.add(evaluation)
+        db.session.flush()
 
     create_task(
         evaluation.id,
@@ -124,28 +137,28 @@ def import_sections_with_evaluations(data, force=False):
         period = Period.query.get(section_input["period_id"])
 
         if not teacher:
-            msg = f"❌ Profesor con id={section_input['teacher_id']} no existe."
-            print(msg)
+            msg = standard_error(f"profesor_id={section_input['teacher_id']}", "no existe.")
+            print(f"❌ {msg}")
             errors.append(msg)
             continue
 
         if not period:
-            msg = f"❌ Periodo con id={section_input['period_id']} no existe."
-            print(msg)
+            msg = standard_error(f"periodo_id={section_input['period_id']}", "no existe.")
+            print(f"❌ {msg}")
             errors.append(msg)
             continue
 
         comb_error = validate_topic_combinations(section_input["topic_combinations"], section_input["evaluation_weight_type"])
         if comb_error:
-            msg = f"❌ Combinación inválida: {comb_error}"
-            print(msg)
+            msg = standard_error(f"seccion_id={section_input['id']}", f"combinación inválida: {comb_error}")
+            print(f"❌ {msg}")
             errors.append(msg)
             continue
 
         topics_error = validate_topics(section_input["topics"], section_input["topic_combinations"])
         if topics_error:
-            msg = f"❌ Tópicos inválidos: {topics_error}"
-            print(msg)
+            msg = standard_error(f"seccion_id={section_input['id']}", f"tópicos inválidos: {topics_error}")
+            print(f"❌ {msg}")
             errors.append(msg)
             continue
 
@@ -153,34 +166,38 @@ def import_sections_with_evaluations(data, force=False):
         if existing and not force:
             duplicated.append(format_duplicate(existing.__dict__, section_input, ["id", "period_id", "teacher_id"]))
             continue
-        elif existing and force:
+
+        if existing and force:
+            existing.period_id = section_input["period_id"]
+            existing.teacher_id = section_input["teacher_id"]
+            existing.section_number = section_input["number"] or str(section_input["id"])
+            existing.evaluation_weight_type = section_input["evaluation_weight_type"]
             for evaluation in existing.evaluations:
                 for task in evaluation.tasks:
                     db.session.delete(task)
                 db.session.delete(evaluation)
-            db.session.delete(existing)
             db.session.flush()
-
-        section = Section(
-            id=section_input["id"],
-            period_id=section_input["period_id"],
-            teacher_id=section_input["teacher_id"],
-            section_number=section_input["number"] or str(section_input["id"]),
-            evaluation_weight_type=section_input["evaluation_weight_type"]
-        )
-        db.session.add(section)
-        db.session.flush()
+            section = existing
+        else:
+            section = Section(
+                id=section_input["id"],
+                period_id=section_input["period_id"],
+                teacher_id=section_input["teacher_id"],
+                section_number=section_input["number"] or str(section_input["id"]),
+                evaluation_weight_type=section_input["evaluation_weight_type"]
+            )
+            db.session.add(section)
+            db.session.flush()
 
         for comb in section_input["topic_combinations"]:
             topic_id = str(comb.get("id"))
             topic_info = section_input["topics"].get(topic_id)
-            create_evaluation_and_tasks(section.id, comb, topic_info)
+            create_evaluation_and_tasks(section.id, comb, topic_info, force=force)
+
 
         inserted += 1
 
     safe_commit()
     result = standard_return(inserted=inserted, ignored=len(errors), duplicated=duplicated, errors=errors)
-    result["sections_inserted"] = result.pop("inserted")
+    result["sections_inserted"] = result.pop("inserted") 
     return result
-
-

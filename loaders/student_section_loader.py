@@ -1,29 +1,39 @@
 from models import db, Student, Section, StudentSection
+from utils.utils import (
+    validate_required_fields,
+    standard_error,
+    format_duplicate,
+    safe_commit,
+    standard_return
+)
 
 def validate_student_section_entry(entry):
-    student_id = entry.get("alumno_id")
-    section_id = entry.get("seccion_id")
+    context = f"Alumno {entry.get('alumno_id', 'N/A')} - Sección {entry.get('seccion_id', 'N/A')}"
+    validated, error = validate_required_fields(entry, ['alumno_id', 'seccion_id'], context)
+    if error:
+        return None, error
 
-    if not student_id or not section_id:
-        return None, "Faltan 'alumno_id' o 'seccion_id'."
-
-    return {"student_id": student_id, "section_id": section_id}, None
+    return {
+        "student_id": entry["alumno_id"],
+        "section_id": entry["seccion_id"]
+    }, None
 
 def format_student_section_duplicate(student, section):
-    return {
-        "ya_existe": {
+    return format_duplicate(
+        {
             "alumno_id": student.id,
             "seccion_id": section.id,
             "nombre": student.name,
             "correo": student.email
         },
-        "nuevo": {
+        {
             "alumno_id": student.id,
             "seccion_id": section.id,
             "nombre": student.name,
             "correo": student.email
-        }
-    }
+        },
+        ["alumno_id", "seccion_id", "nombre", "correo"]
+    )
 
 def import_students_by_section(data, force=False):
     relations = data.get("alumnos_seccion", [])
@@ -39,9 +49,8 @@ def import_students_by_section(data, force=False):
         validated, error = validate_student_section_entry(entry)
         if error:
             ignored += 1
-            msg = f"Entrada inválida (alumno_id={entry.get('alumno_id')}, seccion_id={entry.get('seccion_id')}): {error}"
-            print(f"⚠️ {msg}")
-            errors.append(msg)
+            print(f"⚠️ {error}")
+            errors.append(error)
             continue
         valid_entries.append(validated)
         affected_sections.add(validated["section_id"])
@@ -56,17 +65,17 @@ def import_students_by_section(data, force=False):
         section = Section.query.get(entry["section_id"])
 
         if not student:
-            ignored += 1
-            msg = f"❌ Alumno con id={entry['student_id']} no existe."
-            print(msg)
+            msg = standard_error(f"alumno_id={entry['student_id']}", "no existe.")
+            print(f"❌ {msg}")
             errors.append(msg)
+            ignored += 1
             continue
 
         if not section:
-            ignored += 1
-            msg = f"❌ Sección con id={entry['section_id']} no existe."
-            print(msg)
+            msg = standard_error(f"seccion_id={entry['section_id']}", "no existe.")
+            print(f"❌ {msg}")
             errors.append(msg)
+            ignored += 1
             continue
 
         exists = StudentSection.query.filter_by(student_id=student.id, section_id=section.id).first()
@@ -78,10 +87,5 @@ def import_students_by_section(data, force=False):
         db.session.add(relation)
         inserted += 1
 
-    db.session.commit()
-    return {
-        "inserted": inserted,
-        "ignored": ignored,
-        "duplicated": duplicated,
-        "errors": errors
-    }
+    safe_commit()
+    return standard_return(inserted=inserted, ignored=ignored, duplicated=duplicated, errors=errors)

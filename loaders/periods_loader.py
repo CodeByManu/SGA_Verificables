@@ -1,32 +1,28 @@
 from models import db, Course, Period
+from utils.utils import (
+    validate_required_fields,
+    standard_error,
+    format_duplicate,
+    safe_commit,
+    standard_return
+)
 
 def validate_period_instance(item, año, semestre):
-    period_id = item.get("id")
+    context = f"Periodo ID {item.get('id') or 'N/A'}"
+    valid_data, error = validate_required_fields(item, ['id', 'curso_id'], context)
+    if error:
+        return None, error
+
     course_id = item.get("curso_id")
-    period_name = f"{año}-{semestre}"
-
-    if not period_id or not course_id:
-        return None, None, "Faltan datos obligatorios"
-
     course = Course.query.get(course_id)
     if not course:
-        return None, None, f"course_id {course_id} no existe"
+        return None, standard_error(context, f"course_id {course_id} no existe")
 
-    return period_id, course_id, None  # no error
-
-def format_period_duplicate(existing, item, period_name):
     return {
-        "ya_existe": {
-            "id": existing.id,
-            "course_id": existing.course_id,
-            "period": existing.period
-        },
-        "nuevo": {
-            "id": item.get("id"),
-            "course_id": item.get("curso_id"),
-            "period": period_name
-        }
-    }
+        "id": item["id"],
+        "course_id": course_id,
+        "period_name": f"{año}-{semestre}"
+    }, None
 
 def import_course_periods(data, force=False):
     año = data.get("año")
@@ -34,38 +30,34 @@ def import_course_periods(data, force=False):
     instancias = data.get("instancias", [])
 
     inserted = 0
-    ignored = 0
     duplicated = []
+    errors = []
 
     for item in instancias:
-        period_id = item.get("id")
-        course_id = item.get("curso_id")
-        period_name = f"{año}-{semestre}"
-
-        period_id, course_id, error = validate_period_instance(item, año, semestre)
+        period_data, error = validate_period_instance(item, año, semestre)
         if error:
             print(f"⚠️ Ignorado: {error}")
-            ignored += 1
+            errors.append(error)
             continue
 
-        existing = Period.query.get(period_id)
-
+        existing = Period.query.get(period_data["id"])
         if existing and not force:
-            duplicated.append(format_period_duplicate(existing, item, period_name))
+            duplicated.append(format_duplicate(existing.__dict__, item, ['id', 'course_id', 'period']))
             continue
 
         if existing and force:
-            db.session.delete(existing)
-            db.session.flush()
+            existing.course_id = period_data["course_id"]
+            existing.period = period_data["period_name"]
+            inserted += 1  # ✅ contar sobrescritura
+            continue
 
-        p = Period(id=period_id, course_id=course_id, period=period_name)
-        db.session.add(p)
+        period = Period(
+            id=period_data["id"],
+            course_id=period_data["course_id"],
+            period=period_data["period_name"]
+        )
+        db.session.add(period)
         inserted += 1
 
-    db.session.commit()
-
-    return {
-        "inserted": inserted,
-        "ignored": ignored,
-        "duplicated": duplicated
-    }
+    safe_commit()
+    return standard_return(inserted=inserted, ignored=len(errors), duplicated=duplicated, errors=errors)

@@ -1,40 +1,25 @@
 from models import db, Course, Prerequisite
+from utils.utils import (
+    validate_required_fields,
+    format_duplicate,
+    safe_commit,
+    standard_return
+)
 
 def validate_course(item):
-    course_id = item.get("id")
-    code = item.get("codigo")
-    name = item.get("descripcion")
-    credits = item.get("creditos")
-
-    if not code or not name:
-        return None, f"ID {course_id or 'N/A'}: Faltan campos obligatorios ('codigo' o 'descripcion')."
+    context = f"ID {item.get('id') or 'N/A'}"
+    valid_data, error = validate_required_fields(item, ['codigo', 'descripcion'], context)
+    if error:
+        return None, error
 
     course = Course(
-        id=course_id,
-        code=code,
-        name=name,
-        description=name,
-        credits=credits
+        id=item.get("id"),
+        code=item.get("codigo"),
+        name=item.get("descripcion"),
+        description=item.get("descripcion"),
+        credits=item.get("creditos")
     )
     return course, None
-
-def handle_course_duplicates(existing, item):
-    return {
-        "ya_existe": {
-            "id": existing.id,
-            "codigo": existing.code,
-            "nombre": existing.name,
-            "descripcion": existing.description,
-            "creditos": existing.credits
-        },
-        "nuevo": {
-            "id": item.get("id"),
-            "codigo": item.get("codigo"),
-            "nombre": item.get("descripcion"),
-            "descripcion": item.get("descripcion"),
-            "creditos": item.get("creditos")
-        }
-    }
 
 def create_prerequisite_relations(pending_list):
     for main_code, req_codes in pending_list:
@@ -60,33 +45,37 @@ def create_prerequisite_relations(pending_list):
                     required_course_id=required_course.id
                 ))
 
-    db.session.commit()
-
 def import_courses(data, force=False):
     courses = data.get("cursos", [])
     inserted = 0
     duplicated = []
-    mistakes = []
+    errors = []
     prereq_pending = []
 
     for item in courses:
-        code = item.get("codigo")
-        requisitos = item.get("requisitos", [])
-
         course, error = validate_course(item)
         if error:
             print(f"⚠️ {error}")
-            mistakes.append(error)
+            errors.append(error)
             continue
 
+        code = item.get("codigo")
+        requisitos = item.get("requisitos", [])
+
         existing = Course.query.filter_by(code=code).first()
+
         if existing and not force:
-            duplicated.append(handle_course_duplicates(existing, item))
-            continue    
+            duplicated.append(format_duplicate(existing.__dict__, item, ['id', 'code', 'name', 'description', 'credits']))
+            continue
 
         if existing and force:
-            db.session.delete(existing)
-            db.session.flush()
+            existing.code = item["codigo"]
+            existing.name = item["descripcion"]
+            existing.description = item["descripcion"]
+            existing.credits = item.get("creditos")
+            inserted += 1  
+            prereq_pending.append((code, requisitos))
+            continue
 
         db.session.add(course)
         inserted += 1
@@ -95,9 +84,5 @@ def import_courses(data, force=False):
     db.session.commit()
     create_prerequisite_relations(prereq_pending)
 
-    return {
-        "inserted": inserted,
-        "ignored": len(mistakes),
-        "duplicated": duplicated,
-        "mistakes": mistakes
-    }
+    safe_commit()
+    return standard_return(inserted=inserted, ignored=len(errors), duplicated=duplicated, errors=errors)
