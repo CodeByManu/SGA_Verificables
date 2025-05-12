@@ -1,4 +1,4 @@
-from . import db
+from . import db 
 
 class Course(db.Model):
     __tablename__ = "courses"
@@ -55,6 +55,7 @@ class Section(db.Model):
     teacher = db.relationship('Teacher', back_populates='sections')
     student_sections = db.relationship('StudentSection', back_populates='section', cascade="all, delete")
     evaluations = db.relationship('Evaluation', back_populates='section', cascade="all, delete")
+    time_slots = db.relationship('TimeSlot', back_populates='section', cascade="all, delete")
 
 
 class Teacher(db.Model):
@@ -121,3 +122,25 @@ class Grade(db.Model):
 
     task = db.relationship('Task', back_populates='grades')
     student = db.relationship('Student', back_populates='grades')
+
+
+class Classroom(db.Model):
+    __tablename__ = "classrooms"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    capacity = db.Column(db.Integer, nullable=False)
+
+    time_slots = db.relationship('TimeSlot', back_populates='classroom', cascade="all, delete")
+
+
+class TimeSlot(db.Model):
+    __tablename__ = "time_slots"
+    id = db.Column(db.Integer, primary_key=True)
+    section_id = db.Column(db.Integer, db.ForeignKey('sections.id'), nullable=False)
+    classroom_id = db.Column(db.Integer, db.ForeignKey('classrooms.id'), nullable=False)
+    day = db.Column(db.String(10), nullable=False)  # Ej: 'Monday'
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+
+    section = db.relationship('Section', back_populates='time_slots')
+    classroom = db.relationship('Classroom', back_populates='time_slots')

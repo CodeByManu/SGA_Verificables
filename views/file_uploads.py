@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from services.json_loader import load_json_data
-from services.data_import_service import import_students, import_teachers, import_courses, import_students_by_section, import_course_periods, import_sections_with_evaluations, import_grades
+from services.data_import_service import import_students, import_teachers, import_courses, import_students_by_section, import_course_periods, import_sections_with_evaluations, import_grades, import_classrooms
 
 file_uploads_bp = Blueprint('file_uploads', __name__)
 
@@ -184,3 +184,32 @@ def upload_grades():
         )
     except Exception as e:
         return jsonify(success=False, message=f'Error al importar notas: {str(e)}')
+
+
+@file_uploads_bp.route('/classrooms', methods=['POST'])
+def upload_classrooms():
+    print("✅ Entró a upload_classrooms")
+    file = request.files.get('json_file')
+    force = request.args.get('force', 'false').lower() == 'true'
+
+    if not file:
+        return jsonify(success=False, message="No se subió ningún archivo.")
+
+    try:
+        data = load_json_data(file)
+        result = import_classrooms(data, force=force)
+
+        if result["duplicated"] and not force:
+            return jsonify(
+                success=False,
+                duplicated=result["duplicated"],
+                message=f"{len(result['duplicated'])} salas ya existen. ¿Deseas sobrescribirlas?"
+            )
+
+        return jsonify(
+            success=True,
+            message=f"{result['inserted']} salas importadas. {result['ignored']} ignoradas."
+        )
+
+    except Exception as e:
+        return jsonify(success=False, message=f'Error al importar salas: {str(e)}')

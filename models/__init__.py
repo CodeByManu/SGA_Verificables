@@ -12,5 +12,7 @@ from .entities import (
     StudentSection,
     Evaluation,
     Task,
-    Grade
+    Grade,
+    Classroom,
+    TimeSlot
 )
