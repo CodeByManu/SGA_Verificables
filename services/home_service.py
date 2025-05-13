@@ -16,19 +16,19 @@ def get_period_summary():
 
 def get_grade_statistics():
     grade_ranges = {
-        'Excelente (9-10)': 0,
-        'Bueno (7-8.9)': 0,
-        'Regular (6-6.9)': 0,
-        'Insuficiente (<6)': 0
+        'Excelente (6.5-7)': 0,
+        'Bueno (5.5-6.4)': 0,
+        'Regular (4-5.4)': 0,
+        'Insuficiente (<4)': 0
     }
     for grade in Grade.query.all():
         v = grade.value
-        if v >= 9:
-            grade_ranges['Excelente (9-10)'] += 1
-        elif v >= 7:
-            grade_ranges['Bueno (7-8.9)'] += 1
-        elif v >= 6:
-            grade_ranges['Regular (6-6.9)'] += 1
+        if v >= 6.5:
+            grade_ranges['Excelente (6.5-7)'] += 1
+        elif v >= 5.5:
+            grade_ranges['Bueno (5.5-6.4)'] += 1
+        elif v >= 4:
+            grade_ranges['Regular (4-5.4)'] += 1
         else:
-            grade_ranges['Insuficiente (<6)'] += 1
+            grade_ranges['Insuficiente (<4)'] += 1
     return grade_ranges

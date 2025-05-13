@@ -6,6 +6,7 @@ from services.course_service import (
     update_course,
     delete_course_by_id
 )
+from models.validators import validate_course_data, ValidationError
 
 course_bp = Blueprint('courses', __name__)
 
@@ -21,18 +22,52 @@ def get_course_detail(course_id):
 
 @course_bp.route('/courses', methods=['POST'])
 def post_course():
-    create_course(request.form)
-    flash('Course added successfully!')
+    try:
+        # Validate course data
+        validate_course_data(
+            code=request.form.get('code'),
+            name=request.form.get('name'),
+            credits=int(request.form.get('credits')) if request.form.get('credits') else None
+        )
+        
+        create_course(request.form)
+        flash('Course added successfully!', 'success')
+    except ValidationError as e:
+        flash(str(e), 'error')
+    except ValueError:
+        flash('Invalid credits value', 'error')
+    except Exception as e:
+        flash('An error occurred while creating the course', 'error')
+    
     return redirect(url_for('courses.get_courses'))
 
 @course_bp.route('/courses/<int:course_id>', methods=['POST'])
 def update_course_view(course_id):
-    update_course(course_id, request.form)
-    flash('Course updated successfully!')
+    try:
+        # Validate course data
+        validate_course_data(
+            code=request.form.get('code'),
+            name=request.form.get('name'),
+            credits=int(request.form.get('credits')) if request.form.get('credits') else None
+        )
+        
+        update_course(course_id, request.form)
+        flash('Course updated successfully!', 'success')
+    except ValidationError as e:
+        flash(str(e), 'error')
+    except ValueError:
+        flash('Invalid credits value', 'error')
+    except Exception as e:
+        flash('An error occurred while updating the course', 'error')
+    
     return redirect(url_for('courses.get_courses'))
 
 @course_bp.route('/course/delete/<int:course_id>', methods=['POST'])
 def delete_course(course_id):
-    delete_course_by_id(course_id)
-    flash('Course deleted successfully.')
+    try:
+        delete_course_by_id(course_id)
+        flash('Course deleted successfully.', 'success')
+    except Exception as e:
+        flash('An error occurred while deleting the course', 'error')
+    
     return redirect(url_for('courses.get_courses'))

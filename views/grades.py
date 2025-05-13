@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from models.entities import Section, Task
 from services.grade_service import get_students_in_section, update_grades_for_task
+from models.validators import validate_grade_data, ValidationError
 
 grades_bp = Blueprint('grades', __name__)
 
@@ -10,15 +11,32 @@ def grade_task(section_id, task_id):
     task = Task.query.get_or_404(task_id)
 
     if task.evaluation.section_id != section_id:
-        flash('La tarea no pertenece a esta sección.', 'danger')
+        flash('Task does not belong to this section.', 'error')
         return redirect(url_for('sections.get_section_detail', section_id=section_id))
 
     students = get_students_in_section(section_id)
 
     if request.method == 'POST':
-        success = update_grades_for_task(task_id, section_id, students, request.form)
-        if success:
-            flash('Calificaciones guardadas correctamente.', 'success')
+        try:
+            # Validate each grade
+            for student in students:
+                grade_value = request.form.get(f'grade_{student.id}')
+                if grade_value:  # Only validate if a grade was provided
+                    validate_grade_data(
+                        task_id=task_id,
+                        student_id=student.id,
+                        value=float(grade_value)
+                    )
+            
+            update_grades_for_task(task_id, section_id, students, request.form)
+            flash('Grades saved successfully!', 'success')
+        except ValidationError as e:
+            flash(str(e), 'error')
+        except ValueError:
+            flash('Invalid grade value', 'error')
+        except Exception as e:
+            flash('An error occurred while saving grades', 'error')
+        
         return redirect(url_for('grades.grade_task', section_id=section_id, task_id=task_id))
 
     existing_grades = {g.student_id: g for g in task.grades}

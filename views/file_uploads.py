@@ -14,8 +14,8 @@ def upload_students():
         data = load_json_data(file)
         result = import_students(data, force=force)
         if result["duplicated"] and not force:
-            return jsonify(success=False, duplicated=result["duplicated"], message=f"{len(result['duplicated'])} estudiantes ya existen.")
-        return jsonify(success=True, message=f"{result['inserted']} estudiantes importados. {result['ignored']} ignorados.")
+            return jsonify(success=False, duplicated=result["duplicated"], message=f"{len(result['duplicated'])} estudiantes ya existen.", mistakes=result.get("errors", []))
+        return jsonify(success=True, message=f"{result['inserted']} estudiantes importados. {result['ignored']} ignorados.", mistakes=result.get("errors", []))
     except Exception as e:
         return jsonify(success=False, message=str(e))
 
@@ -37,12 +37,14 @@ def upload_teachers():
             return jsonify(
                 success=False,
                 duplicated=result["duplicated"],
-                message=f"{len(result['duplicated'])} profesores ya existen. ¿Deseas sobrescribirlos?"
+                message=f"{len(result['duplicated'])} profesores ya existen. ¿Deseas sobrescribirlos?",
+                mistakes=result.get("errors", [])
             )
 
         return jsonify(
             success=True,
-            message=f"{result['inserted']} profesores importados. {result['ignored']} ignorados."
+            message=f"{result['inserted']} profesores importados. {result['ignored']} ignorados.",
+            mistakes=result.get("errors", [])
         )
 
     except Exception as e:
@@ -65,12 +67,14 @@ def upload_courses():
             return jsonify(
                 success=False,
                 duplicated=result["duplicated"],
-                message=f"Se encontraron {len(result['duplicated'])} cursos ya existentes. ¿Deseas sobrescribirlos?"
+                message=f"Se encontraron {len(result['duplicated'])} cursos ya existentes. ¿Deseas sobrescribirlos?",
+                mistakes=result.get("errors", [])
             )
 
         return jsonify(
             success=True,
-            message=f"{result['inserted']} cursos importados. {result['ignored']} ignorados."
+            message=f"{result['inserted']} cursos importados. {result['ignored']} ignorados.",
+            mistakes=result.get("errors", [])
         )
     except Exception as e:
         return jsonify(success=False, message=f'Error al importar cursos: {str(e)}')
@@ -92,12 +96,14 @@ def upload_students_by_section():
             return jsonify(
                 success=False,
                 duplicated=result["duplicated"],
-                message=f"{len(result['duplicated'])} relaciones ya existen. ¿Deseas revisarlas?"
+                message=f"{len(result['duplicated'])} relaciones ya existen. ¿Deseas revisarlas?",
+                mistakes=result.get("errors", [])
             )
 
         return jsonify(
             success=True,
-            message=f"{result['inserted']} relaciones creadas. {result['ignored']} ignoradas por estar incompletas."
+            message=f"{result['inserted']} relaciones creadas. {result['ignored']} ignoradas por estar incompletas.",
+            mistakes=result.get("errors", [])
         )
 
     except Exception as e:
@@ -120,12 +126,14 @@ def upload_course_periods():
             return jsonify(
                 success=False,
                 duplicated=result["duplicated"],
-                message=f"{len(result['duplicated'])} periodos ya existen. ¿Deseas sobrescribirlos?"
+                message=f"{len(result['duplicated'])} periodos ya existen. ¿Deseas sobrescribirlos?",
+                mistakes=result.get("errors", [])
             )
 
         return jsonify(
             success=True,
-            message=f"{result['inserted']} periodos creados. {result['ignored']} ignorados."
+            message=f"{result['inserted']} periodos creados. {result['ignored']} ignorados.",
+            mistakes=result.get("errors", [])
         )
     except Exception as e:
         return jsonify(success=False, message=f'Error al importar periodos: {str(e)}')
@@ -147,12 +155,14 @@ def upload_sections_with_evaluations():
             return jsonify(
                 success=False,
                 duplicated=result["duplicated"],
-                message=f"{len(result['duplicated'])} secciones ya existen. ¿Deseas sobrescribirlas?"
+                message=f"{len(result['duplicated'])} secciones ya existen. ¿Deseas sobrescribirlas?",
+                mistakes=result.get("errors", [])
             )
 
         return jsonify(
             success=True,
-            message=f"{result['sections_inserted']} secciones creadas. {result['ignored']} ignoradas."
+            message=f"{result['sections_inserted']} secciones creadas. {result['ignored']} ignoradas.",
+            mistakes=result.get("errors", [])
         )
 
     except Exception as e:
@@ -175,12 +185,14 @@ def upload_grades():
             return jsonify(
                 success=False,
                 duplicated=result["duplicated"],
-                message=f"{len(result['duplicated'])} notas ya existen. ¿Deseas sobrescribirlas?"
+                message=f"{len(result['duplicated'])} notas ya existen. ¿Deseas sobrescribirlas?",
+                mistakes=result.get("errors", [])
             )
 
         return jsonify(
             success=True,
-            message=f"{result['inserted']} notas procesadas. {result['ignored']} ignoradas."
+            message=f"{result['inserted']} notas procesadas. {result['ignored']} ignoradas.",
+            mistakes=result.get("errors", [])
         )
     except Exception as e:
         return jsonify(success=False, message=f'Error al importar notas: {str(e)}')
@@ -203,12 +215,14 @@ def upload_classrooms():
             return jsonify(
                 success=False,
                 duplicated=result["duplicated"],
-                message=f"{len(result['duplicated'])} salas ya existen. ¿Deseas sobrescribirlas?"
+                message=f"{len(result['duplicated'])} salas ya existen. ¿Deseas sobrescribirlas?",
+                mistakes=result.get("errors", [])
             )
 
         return jsonify(
             success=True,
-            message=f"{result['inserted']} salas importadas. {result['ignored']} ignoradas."
+            message=f"{result['inserted']} salas importadas. {result['ignored']} ignoradas.",
+            mistakes=result.get("errors", [])
         )
 
     except Exception as e:

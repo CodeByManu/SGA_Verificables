@@ -5,29 +5,58 @@ from services.evaluation_service import (
     update_evaluation
 )
 from models.entities import Evaluation
+from models.validators import validate_evaluation_data, ValidationError
 
 evaluation_bp = Blueprint('evaluations', __name__)
 
 @evaluation_bp.route('/sections/<int:section_id>/evaluations', methods=['POST'])
 def post_evaluation(section_id):
-    form_data = request.form
-    if create_evaluation_for_section(section_id, form_data):
-        flash('Evaluación creada correctamente.')
-    else:
-        flash('Todos los campos son obligatorios.')
+    try:
+        # Validate evaluation data
+        validate_evaluation_data(
+            name=request.form.get('name'),
+            section_id=section_id,
+            weight=float(request.form.get('weight'))
+        )
+        
+        create_evaluation_for_section(section_id, request.form)
+        flash('Evaluation created successfully!', 'success')
+    except ValidationError as e:
+        flash(str(e), 'error')
+    except ValueError:
+        flash('Invalid weight value', 'error')
+    except Exception as e:
+        flash('An error occurred while creating the evaluation', 'error')
+    
     return redirect(url_for('sections.get_section_detail', section_id=section_id))
 
 @evaluation_bp.route('/sections/<int:section_id>/evaluations/<int:evaluation_id>', methods=['POST'])
 def update_evaluation_view(section_id, evaluation_id):
-    success = update_evaluation(evaluation_id, request.form)
-    if success:
-        flash('Evaluación actualizada correctamente.', 'success')
-    else:
-        flash('Todos los campos son obligatorios.', 'warning')
+    try:
+        # Validate evaluation data
+        validate_evaluation_data(
+            name=request.form.get('name'),
+            section_id=section_id,
+            weight=float(request.form.get('weight'))
+        )
+        
+        update_evaluation(evaluation_id, request.form)
+        flash('Evaluation updated successfully!', 'success')
+    except ValidationError as e:
+        flash(str(e), 'error')
+    except ValueError:
+        flash('Invalid weight value', 'error')
+    except Exception as e:
+        flash('An error occurred while updating the evaluation', 'error')
+    
     return redirect(url_for('sections.get_section_detail', section_id=section_id))
 
 @evaluation_bp.route('/sections/<int:section_id>/evaluations/<int:evaluation_id>/delete', methods=['POST'])
 def delete_evaluation(section_id, evaluation_id):
-    delete_evaluation_by_id(evaluation_id)
-    flash('Evaluación eliminada correctamente.')
+    try:
+        delete_evaluation_by_id(evaluation_id)
+        flash('Evaluation deleted successfully.', 'success')
+    except Exception as e:
+        flash('An error occurred while deleting the evaluation', 'error')
+    
     return redirect(url_for('sections.get_section_detail', section_id=section_id))

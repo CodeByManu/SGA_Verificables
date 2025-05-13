@@ -7,6 +7,12 @@
         </h2>
         <p id="upload-result-message" class="text-gray-600 mb-2">Los datos fueron procesados exitosamente.</p>
 
+        <!-- Errores -->
+        <div id="upload-result-errors" class="text-sm text-left text-red-600 mt-4 hidden">
+            <h3 class="font-semibold mb-2">⚠️ Errores encontrados:</h3>
+            <ul id="error-list" class="list-disc pl-5 max-h-48 overflow-y-auto"></ul>
+        </div>
+
         <!-- Conflictos -->
         <div id="upload-result-conflicts" class="text-sm text-left text-red-600 mt-4 hidden overflow-x-auto max-h-96 overflow-y-auto">
             <table class="min-w-full text-xs border-collapse border border-gray-300">
@@ -26,11 +32,8 @@
     </div>
 </div>
 
-
-
 {% block scripts %} 
 <script>
-
 let duplicatedConflicts = [];
 let lastUploadedFile = null;
 let lastUploadUrl = null;
@@ -48,20 +51,20 @@ function handleJsonUpload(input, endpointUrl) {
         body: formData
     })
     .then(response => response.json())
-        .then(data => {
+    .then(data => {
         lastUploadedFile = file;
         lastUploadUrl = endpointUrl;
 
         if (data.success) {
-            showUploadResult(true, data.message, true, data.mistakes);
+            showUploadResult(true, data.message, true, [], data.mistakes);
         } else if (data.duplicated) {
             showUploadResult(false, data.message, false, data.duplicated, data.mistakes);
         } else {
             showUploadResult(false, data.message, false, [], data.mistakes);
         }
     })
-    .catch(() => {
-        showUploadResult(false, "Error de red o de servidor.", false);
+    .catch(error => {
+        showUploadResult(false, "Error de red o de servidor: " + error.message, false);
     });
 }
 
@@ -69,30 +72,31 @@ function showUploadResult(success = true, message = '', shouldReload = false, du
     const modal = document.getElementById('upload-result-modal');
     const title = document.getElementById('upload-result-title');
     const msg = document.getElementById('upload-result-message');
+    const errorsDiv = document.getElementById('upload-result-errors');
+    const errorList = document.getElementById('error-list');
     const conflictsWrapper = document.getElementById('upload-result-conflicts');
     const conflictsTableBody = document.getElementById('conflict-table-body');
     const actions = document.getElementById('upload-result-actions');
 
     title.textContent = success ? "Carga exitosa" : "Error en la carga";
+    title.className = `text-xl font-semibold mb-4 ${success ? 'text-green-600' : 'text-red-600'}`;
     msg.innerHTML = `<span>${message}</span>`;
-    if (mistakes && mistakes.length > 0) {
-        const errorTitle = document.createElement("div");
-        errorTitle.textContent = "⚠️ Errores encontrados:";
-        errorTitle.className = "text-left text-sm font-semibold text-red-600 mt-2";
-        msg.appendChild(errorTitle);
 
-        const errorList = document.createElement("ul");
-        errorList.className = "text-left text-sm text-red-500 max-h-48 overflow-y-auto mt-1";
+    // Manejar errores
+    errorList.innerHTML = '';
+    if (mistakes && mistakes.length > 0) {
+        errorsDiv.classList.remove('hidden');
         mistakes.forEach(err => {
-            const li = document.createElement("li");
-            li.textContent = "• " + err;
+            const li = document.createElement('li');
+            li.textContent = err;
+            li.className = 'mb-1';
             errorList.appendChild(li);
         });
-        msg.appendChild(errorList);
+    } else {
+        errorsDiv.classList.add('hidden');
     }
 
-
-
+    // Manejar conflictos
     conflictsTableBody.innerHTML = '';
     conflictsWrapper.classList.add('hidden');
     actions.innerHTML = '';
@@ -107,12 +111,12 @@ function showUploadResult(success = true, message = '', shouldReload = false, du
         // Botones de acción
         const overwriteBtn = document.createElement('button');
         overwriteBtn.textContent = "Sobrescribir";
-        overwriteBtn.className = "bg-blue-500 text-white px-4 py-2 rounded mr-2";
+        overwriteBtn.className = "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mr-2 transition-colors";
         overwriteBtn.onclick = confirmOverwrite;
 
         const cancelBtn = document.createElement('button');
         cancelBtn.textContent = "Cancelar";
-        cancelBtn.className = "bg-gray-400 text-white px-4 py-2 rounded";
+        cancelBtn.className = "bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded transition-colors";
         cancelBtn.onclick = closeUploadResultModal;
 
         actions.appendChild(overwriteBtn);
@@ -127,7 +131,7 @@ function showUploadResult(success = true, message = '', shouldReload = false, du
             const prev = document.createElement('button');
             prev.textContent = "«";
             prev.disabled = currentPage === 0;
-            prev.className = "px-2 py-1 border rounded bg-gray-200";
+            prev.className = `px-2 py-1 border rounded ${currentPage === 0 ? 'bg-gray-200' : 'bg-gray-100 hover:bg-gray-200'} transition-colors`;
             prev.onclick = () => {
                 if (currentPage > 0) {
                     currentPage--;
@@ -138,7 +142,7 @@ function showUploadResult(success = true, message = '', shouldReload = false, du
             const next = document.createElement('button');
             next.textContent = "»";
             next.disabled = currentPage >= totalPages - 1;
-            next.className = "px-2 py-1 border rounded bg-gray-200";
+            next.className = `px-2 py-1 border rounded ${currentPage >= totalPages - 1 ? 'bg-gray-200' : 'bg-gray-100 hover:bg-gray-200'} transition-colors`;
             next.onclick = () => {
                 if (currentPage < totalPages - 1) {
                     currentPage++;
@@ -150,19 +154,19 @@ function showUploadResult(success = true, message = '', shouldReload = false, du
             nav.appendChild(next);
             actions.appendChild(nav);
         }
-        else {
-            const okBtn = document.createElement('button');
-            okBtn.textContent = "OK";
-            okBtn.className = "bg-blue-500 text-white px-4 py-2 rounded";
-            okBtn.onclick = function () {
-                closeUploadResultModal();
-                if (shouldReload) {
-                    location.reload();
-                }
-            };
-            actions.appendChild(okBtn);
-        }
+    } else {
+        const okBtn = document.createElement('button');
+        okBtn.textContent = "OK";
+        okBtn.className = "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors";
+        okBtn.onclick = function () {
+            closeUploadResultModal();
+            if (shouldReload) {
+                location.reload();
+            }
+        };
+        actions.appendChild(okBtn);
     }
+
     pendingReload = shouldReload;
     modal.classList.remove('hidden');
 }
@@ -175,6 +179,7 @@ function closeUploadResultModal() {
         location.reload();
     }
 }
+
 function confirmOverwrite() {
     const formData = new FormData();
     formData.append('json_file', lastUploadedFile);
@@ -184,10 +189,12 @@ function confirmOverwrite() {
     })
     .then(response => response.json())
     .then(data => {
-        showUploadResult(data.success, data.message, data.success);
+        showUploadResult(data.success, data.message, data.success, [], data.mistakes);
+    })
+    .catch(error => {
+        showUploadResult(false, "Error al sobrescribir: " + error.message, false);
     });
 }
-
 
 function renderConflictPage(pageIndex) {
     const tbody = document.getElementById('conflict-table-body');
@@ -225,6 +232,5 @@ function renderConflictPage(pageIndex) {
         tbody.appendChild(spacer);
     });
 }
-
 </script>
 {% endblock %}

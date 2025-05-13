@@ -6,6 +6,7 @@ from services.student_service import (
     update_student,
     delete_student_by_id
 )
+from models.validators import validate_student_data, ValidationError
 
 student_bp = Blueprint('students', __name__)
 
@@ -21,25 +22,52 @@ def get_student_detail(student_id):
 
 @student_bp.route('/students', methods=['POST'])
 def post_student():
-    print("📥 POST recibido en /students")  
-    print("→ Data recibida:", request.form)
-
-    if not request.form.get('name') or not request.form.get('email') or not request.form.get('admission_date'):
-        flash("Todos los campos son obligatorios.", "danger")
-        return redirect(url_for('students.get_students'))
-
-    create_student(request.form)
-    flash("Estudiante creado exitosamente.", "success")
+    try:
+        # Validate student data
+        validate_student_data(
+            name=request.form.get('name'),
+            email=request.form.get('email'),
+            admission_date=int(request.form.get('admission_date'))
+        )
+        
+        create_student(request.form)
+        flash('Student created successfully!', 'success')
+    except ValidationError as e:
+        flash(str(e), 'error')
+    except ValueError:
+        flash('Invalid admission date value', 'error')
+    except Exception as e:
+        flash('An error occurred while creating the student', 'error')
+    
     return redirect(url_for('students.get_students'))
 
 @student_bp.route('/students/<int:student_id>', methods=['POST'])
 def update_student_view(student_id):
-    update_student(student_id, request.form)
-    flash('Student updated successfully!')
+    try:
+        # Validate student data
+        validate_student_data(
+            name=request.form.get('name'),
+            email=request.form.get('email'),
+            admission_date=int(request.form.get('admission_date'))
+        )
+        
+        update_student(student_id, request.form)
+        flash('Student updated successfully!', 'success')
+    except ValidationError as e:
+        flash(str(e), 'error')
+    except ValueError:
+        flash('Invalid admission date value', 'error')
+    except Exception as e:
+        flash('An error occurred while updating the student', 'error')
+    
     return redirect(url_for('students.get_students'))
 
 @student_bp.route('/student/delete/<int:student_id>', methods=['POST'])
 def delete_student(student_id):
-    delete_student_by_id(student_id)
-    flash('Student deleted successfully.')
+    try:
+        delete_student_by_id(student_id)
+        flash('Student deleted successfully.', 'success')
+    except Exception as e:
+        flash('An error occurred while deleting the student', 'error')
+    
     return redirect(url_for('students.get_students'))
