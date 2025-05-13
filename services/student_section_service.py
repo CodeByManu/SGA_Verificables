@@ -2,6 +2,10 @@ from models import db
 from models.entities import StudentSection
 
 # CORRECTO
+
+def get_all_student_section():
+    return StudentSection.query.all()
+
 def add_students_to_section(section_id, student_ids):
     for student_id in student_ids:
         exists = StudentSection.query.filter_by(
