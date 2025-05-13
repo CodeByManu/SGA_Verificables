@@ -55,6 +55,14 @@
                 <i class="fas fa-plus mr-2"></i> Agregar curso
             </button>
         </div>
+        <div class="mt-4 md:mt-0 ml-4">
+            <button
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                onclick="window.location.href='{{ url_for('schedule.download_schedule') }}'"
+            >
+                <i class="fas fa-download mr-2"></i> Descargar Horario
+            </button>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">

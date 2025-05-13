@@ -2,6 +2,9 @@ from models import db
 from models.entities import Section, Student, Teacher
 from datetime import datetime
 
+def get_all_sections():
+    return Section.query.all()
+
 def get_section_by_id(section_id):
     return Section.query.get_or_404(section_id)
 

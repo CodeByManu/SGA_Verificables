@@ -7,6 +7,8 @@ from views import (
     task_bp, student_section_bp, home_bp,
     file_uploads_bp
 )
+from schedule import schedule_bp
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -17,15 +19,13 @@ with app.app_context():
 
 for bp in [
     student_bp, teacher_bp, course_bp, period_bp,
-    section_bp, evaluation_bp, grades_bp,
-    task_bp, student_section_bp, home_bp
+    section_bp, evaluation_bp, grades_bp, task_bp, 
+    student_section_bp, home_bp, schedule_bp
 ]:
     app.register_blueprint(bp)
 
-app.register_blueprint(file_uploads_bp, url_prefix='/upload')
 
-
-
+import schedule
 
 if __name__ == '__main__':
     app.run(debug=True)
