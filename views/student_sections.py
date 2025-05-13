@@ -12,7 +12,6 @@ def post_students_to_section(section_id):
         
         for student_id in selected_ids:
             try:
-                # Validate each student-section relationship
                 validate_student_section_data(
                     student_id=int(student_id),
                     section_id=section_id

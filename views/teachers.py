@@ -23,7 +23,6 @@ def get_teacher_detail(teacher_id):
 @teacher_bp.route('/teachers', methods=['POST'])
 def post_teacher():
     try:
-        # Validate teacher data
         validate_teacher_data(
             name=request.form.get('name'),
             email=request.form.get('email')
@@ -41,7 +40,6 @@ def post_teacher():
 @teacher_bp.route('/teachers/<int:teacher_id>', methods=['POST'])
 def update_teacher_view(teacher_id):
     try:
-        # Validate teacher data
         validate_teacher_data(
             name=request.form.get('name'),
             email=request.form.get('email')

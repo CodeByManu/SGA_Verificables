@@ -5,7 +5,7 @@ from services.period_service import (
     delete_period_by_id,
     update_period
 )
-from models.entities import Teacher  # Necesario para mostrar en detalle
+from models.entities import Teacher  
 from models.validators import validate_period_data, ValidationError
 
 period_bp = Blueprint('periods', __name__)
@@ -20,7 +20,6 @@ def get_period_detail(period_id):
 def post_period(course_id):
     try:
         period_value = request.form.get('period')
-        # Validate period data
         validate_period_data(
             course_id=course_id,
             period=period_value
@@ -49,7 +48,6 @@ def delete_period(course_id, period_id):
 def update_period_view(course_id, period_id):
     try:
         period_value = request.form.get('period')
-        # Validate period data
         validate_period_data(
             course_id=course_id,
             period=period_value

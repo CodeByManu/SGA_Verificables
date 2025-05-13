@@ -18,5 +18,5 @@ def home():
         period_values=[periods_data[p] for p in sorted(periods_data)],
         grade_labels=list(grade_ranges.keys()),
         grade_values=list(grade_ranges.values()),
-        recent_activities=[...]  # si lo deseas puedes mover eso también
+        recent_activities=[...] 
     )

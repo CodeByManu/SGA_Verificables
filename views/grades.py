@@ -18,10 +18,9 @@ def grade_task(section_id, task_id):
 
     if request.method == 'POST':
         try:
-            # Validate each grade
             for student in students:
                 grade_value = request.form.get(f'grade_{student.id}')
-                if grade_value:  # Only validate if a grade was provided
+                if grade_value:
                     validate_grade_data(
                         task_id=task_id,
                         student_id=student.id,

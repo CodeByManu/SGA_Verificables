@@ -12,7 +12,6 @@ evaluation_bp = Blueprint('evaluations', __name__)
 @evaluation_bp.route('/sections/<int:section_id>/evaluations', methods=['POST'])
 def post_evaluation(section_id):
     try:
-        # Validate evaluation data
         validate_evaluation_data(
             name=request.form.get('name'),
             section_id=section_id,
@@ -33,7 +32,6 @@ def post_evaluation(section_id):
 @evaluation_bp.route('/sections/<int:section_id>/evaluations/<int:evaluation_id>', methods=['POST'])
 def update_evaluation_view(section_id, evaluation_id):
     try:
-        # Validate evaluation data
         validate_evaluation_data(
             name=request.form.get('name'),
             section_id=section_id,

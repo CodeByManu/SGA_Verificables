@@ -24,7 +24,6 @@ def get_section_detail(section_id):
 @section_bp.route('/periods/<int:period_id>/sections', methods=['POST'])
 def post_section(period_id):
     try:
-        # Validate section data
         validate_section_data(
             period_id=period_id,
             teacher_id=int(request.form.get('teacher_id')),
@@ -55,7 +54,6 @@ def delete_section(period_id, section_id):
 @section_bp.route('/periods/<int:period_id>/sections/<int:section_id>', methods=['POST'])
 def update_section_view(period_id, section_id):
     try:
-        # Validate section data
         validate_section_data(
             period_id=period_id,
             teacher_id=int(request.form.get('teacher_id')),

@@ -23,7 +23,6 @@ def get_course_detail(course_id):
 @course_bp.route('/courses', methods=['POST'])
 def post_course():
     try:
-        # Validate course data
         validate_course_data(
             code=request.form.get('code'),
             name=request.form.get('name'),
@@ -44,7 +43,6 @@ def post_course():
 @course_bp.route('/courses/<int:course_id>', methods=['POST'])
 def update_course_view(course_id):
     try:
-        # Validate course data
         validate_course_data(
             code=request.form.get('code'),
             name=request.form.get('name'),

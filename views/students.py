@@ -23,7 +23,6 @@ def get_student_detail(student_id):
 @student_bp.route('/students', methods=['POST'])
 def post_student():
     try:
-        # Validate student data
         validate_student_data(
             name=request.form.get('name'),
             email=request.form.get('email'),
@@ -44,7 +43,6 @@ def post_student():
 @student_bp.route('/students/<int:student_id>', methods=['POST'])
 def update_student_view(student_id):
     try:
-        # Validate student data
         validate_student_data(
             name=request.form.get('name'),
             email=request.form.get('email'),

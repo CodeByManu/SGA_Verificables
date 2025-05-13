@@ -8,7 +8,6 @@ task_bp = Blueprint('tasks', __name__)
 @task_bp.route('/sections/<int:section_id>/evaluations/<int:evaluation_id>/tasks', methods=['POST'])
 def add_task_to_evaluation(section_id, evaluation_id):
     try:
-        # Validate task data
         validate_task_data(
             name=request.form.get('name'),
             evaluation_id=evaluation_id,
