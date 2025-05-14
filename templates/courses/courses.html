@@ -12,36 +12,36 @@
         </div>
         <div class="flex items-right mt-4 md:mt-0">
             <div class="relative">
-                <button id="uploadDropdownButton" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center transform translate-x-[230%]" >
+                <button id="uploadDropdownButton" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4" >
                     <i class="fas fa-upload mr-2"></i> Cargar JSON
                     <i class="fas fa-chevron-down ml-2"></i>
                 </button>
-                <div id="uploadDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg z-10 transform translate-x-[170%]">
+                <div id="uploadDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg z-10">
                     <div class="py-2">
-                        <label class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                            <input type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/courses')">
+                        <label for="json-file-courses" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
                             <i class="fas fa-book mr-2"></i> Cursos
                         </label>
-                        <label class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                            <input type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/periods')">
+                        <input id="json-file-courses" type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/courses')">
+                        <label for="json-file-periods" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
                             <i class="fas fa-calendar mr-2"></i> Instancias curso
                         </label>
-                        <label class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                            <input type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/sections_with_eval')">
+                        <input id="json-file-periods" type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/periods')">
+                        <label for="json-file-sections" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
                             <i class="fas fa-list mr-2"></i> Curso con Secciones
                         </label>
-                        <label class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                            <input type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/students_section')">
+                        <input id="json-file-sections" type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/sections_with_eval')">
+                        <label for="json-file-students" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
                             <i class="fas fa-users mr-2"></i> Alumnos-secciones
                         </label>
-                        <label class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                            <input type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/grades')">
+                        <input id="json-file-students" type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/students_section')">
+                        <label for="json-file-grades" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
                             <i class="fas fa-star mr-2"></i> Alumnos-notas
                         </label>
-                        <label class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                            <input type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/classrooms')">
+                        <input id="json-file-grades" type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/grades')">
+                        <label for="json-file-classrooms" class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
                             <i class="fas fa-door-open mr-2"></i> Salas de clase
                         </label>
+                        <input id="json-file-classrooms" type="file" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/classrooms')">
                     </div>
                 </div>
             </div>
@@ -265,15 +265,7 @@
             }
         });
 
-        // Manejar la selección de archivos
-        const labels = dropdown.querySelectorAll('label');
-        labels.forEach(label => {
-            const input = label.querySelector('input');
-            label.addEventListener('click', function(e) {
-                e.preventDefault();
-                input.click();
-            });
-        });
+        // La selección de archivos ahora es manejada por el comportamiento nativo de label[for].
     });
 </script>
 {% endblock %}
