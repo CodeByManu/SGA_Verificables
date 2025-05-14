@@ -1,13 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask
 from config import Config
 from models import db 
 from views import (
     student_bp, teacher_bp, course_bp, period_bp,
     section_bp, evaluation_bp, grades_bp,
     task_bp, student_section_bp, home_bp,
-    file_uploads_bp
+    file_uploads_bp, schedule_bp
 )
-from schedule import schedule_bp
 
 
 app = Flask(__name__)
@@ -20,12 +19,10 @@ with app.app_context():
 for bp in [
     student_bp, teacher_bp, course_bp, period_bp,
     section_bp, evaluation_bp, grades_bp, task_bp, 
-    student_section_bp, home_bp, schedule_bp
+    student_section_bp, home_bp, file_uploads_bp,
+    schedule_bp
 ]:
     app.register_blueprint(bp)
-
-
-import schedule
 
 if __name__ == '__main__':
     app.run(debug=True)

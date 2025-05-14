@@ -4,51 +4,33 @@ from services.teacher_service import get_all_teachers
 from services.classroom_service import get_all_classrooms
 from services.student_section_service import get_all_student_section
 
-from flask import Blueprint, send_file, current_app
-from flask import flash, redirect, url_for
 from ortools.sat.python import cp_model
 import pandas as pd
+import xlsxwriter
 
-schedule_bp = Blueprint('schedule', __name__)
-
-def generate_schedule():
-    model = cp_model.CpModel()
-
+def load_schedule_data():
     student_section = get_all_student_section()
-    teachers_temp = get_all_teachers()
-
     sections = get_all_sections()
-    creds = {}
-    teachers = {}
+    creds = {sec.id: sec.period.course.credits for sec in sections}
+    teachers = {sec.id: sec.teacher.name for sec in sections}
     students_in = {}
-    rooms = get_all_classrooms()
-    capacity = {}
-
-    for section in sections:
-        creds[section.id] = section.period.course.credits
-        teachers[section.id] = section.teacher.name
-
-    for room in rooms:
-        capacity[room.id] = room.capacity
-    
     for ss in student_section:
-        if ss.section_id in students_in.keys():
-            students_in[ss.section_id].append(ss.student_id)
-        else:
-            students_in[ss.section_id] = [ss.student_id]
-
+        students_in.setdefault(ss.section_id, []).append(ss.student_id)
+    rooms = get_all_classrooms()
+    capacity = {r.id: r.capacity for r in rooms}
     slots = [(d, h) for d in range(5) for h in [0,1,2,3,5,6,7,8]]
+    return sections, creds, teachers, students_in, rooms, capacity, slots
 
+def solve_schedule(sections, creds, teachers, students_in, rooms, capacity, slots):
+    model = cp_model.CpModel()
     x = {}
     for s in sections:
         for (d, h) in slots:
             for r in rooms:
                 if capacity[r.id] >= len(students_in.get(s.id, [])):
                     x[s.id,d,h,r.id] = model.NewBoolVar(f"x_{s.id}_{d}_{h}_{r.id}")
-    
     for s in sections:
         model.Add(sum(x[s.id,d,h,r.id] for (d,h) in slots for r in rooms) == 1)
-
     for s in sections:
         c = creds[s.id]
         for (d,h) in slots:
@@ -56,26 +38,24 @@ def generate_schedule():
             for r in rooms:
                 ok = True
                 for offset in range(c):
-                    next_h = h + offset
-                    if (d,next_h) not in slots:
+                    if (d,h+offset) not in slots:
                         ok = False
                 if ok:
                     valid.append(x[s.id,d,h,r.id])
             model.Add(sum(valid) == sum(x[s.id,d,h,r.id] for r in rooms))
-            
     for (d,h) in slots:
         for r in rooms:
             model.Add(
-                sum(x[s.id,d,h0,r.id] 
-                    for s in sections 
-                    for h0 in range(h - creds[s.id] + 1, h+1) 
+                sum(x[s.id,d,h0,r.id]
+                    for s in sections
+                    for h0 in range(h - creds[s.id] + 1, h+1)
                     if (d,h0) in slots and h0 + creds[s.id] > h
                 ) <= 1
             )
         for p in set(teachers.values()):
             model.Add(
-                sum(x[s.id,d,h0,r.id] 
-                    for s in sections if teachers[s.id]==p
+                sum(x[s.id,d,h0,r.id]
+                    for s in sections if teachers[s.id] == p
                     for r in rooms
                     for h0 in range(h - creds[s.id] + 1, h+1)
                     if (d,h0) in slots and h0 + creds[s.id] > h
@@ -84,19 +64,18 @@ def generate_schedule():
         for stu in set(sum(students_in.values(), [])):
             secs = [s.id for s in sections if stu in students_in.get(s.id, [])]
             model.Add(
-                sum(x[s,d,h0,r.id] 
+                sum(x[s,d,h0,r.id]
                     for s in secs
                     for r in rooms
                     for h0 in range(h - creds[s] + 1, h+1)
                     if (d,h0) in slots and h0 + creds[s] > h
                 ) <= 1
             )
-            
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = 30
     res = solver.Solve(model)
     if not (res == cp_model.OPTIMAL or res == cp_model.FEASIBLE):
-        return False
+        return None
     assignments = []
     for s in sections:
         for (d,h) in slots:
@@ -109,7 +88,9 @@ def generate_schedule():
                         "end":   f"{9+h+creds[s.id] if h<4 else 9+(h-1)+creds[s.id]}:00",
                         "room": r
                     })
+    return assignments
 
+def write_schedule_excel(assignments, creds):
     df = pd.DataFrame(assignments)
     df['day'] = df['day'].map({0:'Lunes',1:'Martes',2:'Miércoles',3:'Jueves',4:'Viernes'})
     df['section'] = df['section'].apply(lambda sec: f"{sec.period.course.name} (Sección {sec.section_number})")
@@ -117,7 +98,6 @@ def generate_schedule():
     day_map = {0:'Lunes',1:'Martes',2:'Miércoles',3:'Jueves',4:'Viernes'}
     for entry in assignments:
         entry['day'] = day_map.get(entry['day'], entry['day'])
-
     with pd.ExcelWriter('horario_semestre.xlsx', engine='xlsxwriter') as writer:
         workbook  = writer.book
         worksheet = workbook.add_worksheet('Horario')
@@ -167,18 +147,12 @@ def generate_schedule():
             worksheet.set_column(col, col, 20)
 
         df.to_excel(writer, index=False, sheet_name='Tabla')
-
     return True
 
-@schedule_bp.route('/download_schedule')
-def download_schedule():
-    success = generate_schedule()
-    if not success:
-        flash('No hay solución factible con estas restricciones.', 'evaluation_error')
-        return redirect(url_for('courses.get_courses'))
-    return send_file(
-        'horario_semestre.xlsx',
-        as_attachment=True,
-        download_name='horario_semestre.xlsx',
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
+def generate_schedule():
+    data = load_schedule_data()
+    assignments = solve_schedule(*data)
+    if assignments is None:
+        return False
+    write_schedule_excel(assignments, data[1])
+    return True
