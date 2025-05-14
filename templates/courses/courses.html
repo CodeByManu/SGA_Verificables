@@ -1,51 +1,108 @@
-<!-- templates/courses.html -->
 {% extends "base.html" %} {% block content %}
 
 <div class="bg-white p-6 rounded-lg shadow-md mb-6">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <div>
-            <h2 class="text-3xl font-bold text-teal-700">
-                Listado de Cursos
-            </h2>
+            <h2 class="text-3xl font-bold text-teal-700">Listado de Cursos</h2>
             <div class="text-sm text-gray-500 mt-2">
                 Administra la información de los cursos disponibles en el sistema.
             </div>
         </div>
         <div class="flex items-right mt-4 md:mt-0">
-            <label for="json-file-input-course" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
-                <i class="fas fa-upload mr-2"></i> Cargar JSON cursos
-            </label>
-            <input type="file" id="json-file-input-course" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/courses')">
-        </div>
-        <div class="flex items-right mt-4 md:mt-0">
-            <label for="json-file-input-periods" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
-                <i class="fas fa-upload mr-2"></i> Cargar JSON instancias curso
-            </label>
-            <input type="file" id="json-file-input-periods" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/periods')">
-        </div>
-        <div class="flex items-right mt-4 md:mt-0">
-            <label for="json-file-input-sections-eval" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
-                <i class="fas fa-upload mr-2"></i> Cargar JSON Curso con Secciones
-            </label>
-            <input type="file" id="json-file-input-sections-eval" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/sections_with_eval')">
-        </div>
-        <div class="flex items-right mt-4 md:mt-0">
-            <label for="json-file-input-students-section" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
-                <i class="fas fa-upload mr-2"></i> Cargar JSON Alumnos-secciones
-            </label>
-            <input type="file" id="json-file-input-students-section" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/students_section')">
-        </div>
-        <div class="flex items-right mt-4 md:mt-0">
-            <label for="json-file-input-grades" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
-                <i class="fas fa-upload mr-2"></i> Cargar JSON alumnos-notas
-            </label>
-            <input type="file" id="json-file-input-grades" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/grades')">
-        </div>
-        <div class="flex items-right mt-4 md:mt-0">
-            <label for="json-file-input-classrooms" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
-                <i class="fas fa-upload mr-2"></i> Cargar JSON salas de clase
-            </label>
-            <input type="file" id="json-file-input-classrooms" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/classrooms')">
+            <div class="relative">
+                <button
+                    id="uploadDropdownButton"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4"
+                >
+                    <i class="fas fa-upload mr-2"></i> Cargar JSON
+                    <i class="fas fa-chevron-down ml-2"></i>
+                </button>
+                <div
+                    id="uploadDropdown"
+                    class="hidden absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg z-10"
+                >
+                    <div class="py-2">
+                        <label
+                            for="json-file-courses"
+                            class="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                            <i class="fas fa-book mr-2"></i> Cursos
+                        </label>
+                        <input
+                            id="json-file-courses"
+                            type="file"
+                            class="hidden"
+                            accept=".json"
+                            onchange="handleJsonUpload(this, '/upload/courses')"
+                        />
+                        <label
+                            for="json-file-periods"
+                            class="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                            <i class="fas fa-calendar mr-2"></i> Instancias curso
+                        </label>
+                        <input
+                            id="json-file-periods"
+                            type="file"
+                            class="hidden"
+                            accept=".json"
+                            onchange="handleJsonUpload(this, '/upload/periods')"
+                        />
+                        <label
+                            for="json-file-sections"
+                            class="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                            <i class="fas fa-list mr-2"></i> Curso con Secciones
+                        </label>
+                        <input
+                            id="json-file-sections"
+                            type="file"
+                            class="hidden"
+                            accept=".json"
+                            onchange="handleJsonUpload(this, '/upload/sections_with_eval')"
+                        />
+                        <label
+                            for="json-file-students"
+                            class="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                            <i class="fas fa-users mr-2"></i> Alumnos-secciones
+                        </label>
+                        <input
+                            id="json-file-students"
+                            type="file"
+                            class="hidden"
+                            accept=".json"
+                            onchange="handleJsonUpload(this, '/upload/students_section')"
+                        />
+                        <label
+                            for="json-file-grades"
+                            class="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                            <i class="fas fa-star mr-2"></i> Alumnos-notas
+                        </label>
+                        <input
+                            id="json-file-grades"
+                            type="file"
+                            class="hidden"
+                            accept=".json"
+                            onchange="handleJsonUpload(this, '/upload/grades')"
+                        />
+                        <label
+                            for="json-file-classrooms"
+                            class="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                            <i class="fas fa-door-open mr-2"></i> Salas de clase
+                        </label>
+                        <input
+                            id="json-file-classrooms"
+                            type="file"
+                            class="hidden"
+                            accept=".json"
+                            onchange="handleJsonUpload(this, '/upload/classrooms')"
+                        />
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="mt-4 md:mt-0">
             <button
@@ -53,6 +110,14 @@
                 onclick="openModal()"
             >
                 <i class="fas fa-plus mr-2"></i> Agregar curso
+            </button>
+        </div>
+        <div class="mt-4 md:mt-0 ml-4">
+            <button
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+                onclick="window.location.href='{{ url_for('schedule.download_schedule') }}'"
+            >
+                <i class="fas fa-download mr-2"></i> Descargar Horario
             </button>
         </div>
     </div>
@@ -69,16 +134,12 @@
                 </div>
             </div>
         </div>
-        
-        {% set periods_count = namespace(count=0) %}
-        {% set sections_count = namespace(count=0) %}
-        {% for course in courses %}
-            {% set periods_count.count = periods_count.count + course.periods|length %}
-            {% for period in course.periods %}
-                {% set sections_count.count = sections_count.count + period.sections|length %}
-            {% endfor %}
-        {% endfor %}
-        
+
+        {% set periods_count = namespace(count=0) %} {% set sections_count = namespace(count=0) %}
+        {% for course in courses %} {% set periods_count.count = periods_count.count +
+        course.periods|length %} {% for period in course.periods %} {% set sections_count.count =
+        sections_count.count + period.sections|length %} {% endfor %} {% endfor %}
+
         <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg shadow">
             <div class="flex justify-between items-start">
                 <div>
@@ -90,7 +151,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg shadow">
             <div class="flex justify-between items-start">
                 <div>
@@ -114,7 +175,9 @@
                         placeholder="Buscar curso..."
                         class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                     />
-                    <i class="fas fa-search text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                    <i
+                        class="fas fa-search text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"
+                    ></i>
                 </div>
             </div>
         </div>
@@ -126,16 +189,28 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                        scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
                         Código
                     </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                        scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
                         Nombre
                     </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                        scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
                         Periodos
                     </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th
+                        scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
                         Acciones
                     </th>
                 </tr>
@@ -144,17 +219,25 @@
                 {% for course in courses %}
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-teal-100 text-teal-800">
+                        <span
+                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-teal-100 text-teal-800"
+                        >
                             {{ course.code }}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
-                                <span class="text-teal-600 font-semibold text-lg">{{ course.name[:1] | upper }}</span>
+                            <div
+                                class="flex-shrink-0 h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center"
+                            >
+                                <span class="text-teal-600 font-semibold text-lg"
+                                    >{{ course.name[:1] | upper }}</span
+                                >
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">{{ course.name }}</div>
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ course.name }}
+                                </div>
                                 {% if course.description %}
                                 <div class="text-sm text-gray-500">{{ course.description }}</div>
                                 {% endif %}
@@ -162,13 +245,18 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        <span
+                            class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
+                        >
                             {{ course.periods|length }} periodos
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div class="flex space-x-3">
-                            <a href="{{ url_for('courses.get_course_detail', course_id=course.id) }}" class="text-green-500 hover:text-green-700">
+                            <a
+                                href="{{ url_for('courses.get_course_detail', course_id=course.id) }}"
+                                class="text-green-500 hover:text-green-700"
+                            >
                                 <i class="fas fa-eye"></i>
                             </a>
                             <button
@@ -177,6 +265,7 @@
                                 data-code="{{ course.code }}"
                                 data-name="{{ course.name }}"
                                 data-description="{{ course.description }}"
+                                data-credits="{{ course.credits }}"
                                 onclick="openEditModal(this)"
                             >
                                 <i class="fas fa-edit"></i>
@@ -206,43 +295,55 @@
     </div>
 </div>
 
-{% include "courses/modal_course_form.html" %}
-{% include "courses/modal_edit_course_form.html" %}
-{% include "modal_upload_result.html" %}
-{% endblock %} 
-
-
-
-
-{% block scripts %}
+{% include "courses/modal_course_form.html" %} {% include "courses/modal_edit_course_form.html" %}
+{% include "modal_upload_result.html" %} {% endblock %} {% block scripts %}
 <script>
-    function openModal() {
-        document.getElementById('modal').classList.remove('hidden');
-    }
+      function openModal() {
+          document.getElementById('modal').classList.remove('hidden');
+      }
 
-    function closeModal() {
-        document.getElementById('modal').classList.add('hidden');
-    }
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('keyup', function() {
-                const searchTerm = this.value.toLowerCase();
-                const rows = document.querySelectorAll('#coursesTableBody tr');
-                
-                rows.forEach(row => {
-                    const code = row.querySelector('td:first-child')?.textContent.toLowerCase() || '';
-                    const name = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
-                    
-                    if (code.includes(searchTerm) || name.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-        }
-    });
+      function closeModal() {
+          document.getElementById('modal').classList.add('hidden');
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+          const searchInput = document.getElementById('searchInput');
+          if (searchInput) {
+              searchInput.addEventListener('keyup', function() {
+                  const searchTerm = this.value.toLowerCase();
+                  const rows = document.querySelectorAll('#coursesTableBody tr');
+
+                  rows.forEach(row => {
+                      const code = row.querySelector('td:first-child')?.textContent.toLowerCase() || '';
+                      const name = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+
+                      if (code.includes(searchTerm) || name.includes(searchTerm)) {
+                          row.style.display = '';
+                      } else {
+                          row.style.display = 'none';
+                      }
+                  });
+              });
+          }
+
+          const dropdownButton = document.getElementById('uploadDropdownButton');
+          const dropdown = document.getElementById('uploadDropdown');
+
+          dropdownButton.addEventListener('click', function() {
+              dropdown.classList.toggle('hidden');
+          });
+
+          document.addEventListener('click', function(event) {
+              if (!dropdownButton.contains(event.target) && !dropdown.contains(event.target)) {
+                  dropdown.classList.add('hidden');
+              }
+          });
+
+      });
+    {% with msgs = get_flashed_messages(category_filter=['evaluation_error']) %}
+        {% if msgs %}
+            alert("{{ msgs[0] }}");
+        {% endif %}
+    {% endwith %}
 </script>
 {% endblock %}
