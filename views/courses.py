@@ -46,16 +46,20 @@ def update_course_view(course_id):
         validate_course_data(
             code=request.form.get('code'),
             name=request.form.get('name'),
-            credits=int(request.form.get('credits')) if request.form.get('credits') else None
+            credits=int(request.form.get('credits')) if request.form.get('credits') else None,
+            course_id=course_id
         )
-        
+        print("Updating course with ID:", course_id)
         update_course(course_id, request.form)
         flash('Course updated successfully!', 'success')
     except ValidationError as e:
+        print("Validation error:", str(e))
         flash(str(e), 'error')
     except ValueError:
+        print("Invalid credits value")
         flash('Invalid credits value', 'error')
     except Exception as e:
+        print("An error occurred:", str(e))
         flash('An error occurred while updating the course', 'error')
     
     return redirect(url_for('courses.get_courses'))

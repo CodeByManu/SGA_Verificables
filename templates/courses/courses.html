@@ -184,6 +184,7 @@
                                 data-code="{{ course.code }}"
                                 data-name="{{ course.name }}"
                                 data-description="{{ course.description }}"
+                                data-credits="{{ course.credits }}"
                                 onclick="openEditModal(this)"
                             >
                                 <i class="fas fa-edit"></i>
@@ -258,14 +259,12 @@
             dropdown.classList.toggle('hidden');
         });
 
-        // Cerrar el dropdown cuando se hace clic fuera
         document.addEventListener('click', function(event) {
             if (!dropdownButton.contains(event.target) && !dropdown.contains(event.target)) {
                 dropdown.classList.add('hidden');
             }
         });
 
-        // La selección de archivos ahora es manejada por el comportamiento nativo de label[for].
     });
 </script>
 {% endblock %}

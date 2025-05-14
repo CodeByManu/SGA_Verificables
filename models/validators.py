@@ -13,7 +13,7 @@ def validate_email(email: str) -> bool:
         raise ValidationError("Invalid email format")
     return True
 
-def validate_course_data(code: str, name: str, credits: Optional[int] = None) -> bool:
+def validate_course_data(code: str, name: str, credits: Optional[int] = None, course_id: Optional[int] = None) -> bool:
 
     if not code or not name:
         raise ValidationError("Code and name are required")
@@ -23,12 +23,12 @@ def validate_course_data(code: str, name: str, credits: Optional[int] = None) ->
     
     # Check if code is unique
     existing_course = Course.query.filter_by(code=code).first()
-    if existing_course:
+    if existing_course and (course_id is None or existing_course.id != course_id):
         raise ValidationError("Course code must be unique")
     
     return True
 
-def validate_student_data(name: str, email: str, admission_date: int) -> bool:
+def validate_student_data(name: str, email: str, admission_date: int, student_id: Optional[int] = None) -> bool:
 
     if not name:
         raise ValidationError("Name is required")
@@ -37,7 +37,7 @@ def validate_student_data(name: str, email: str, admission_date: int) -> bool:
     
     # Check if email is unique
     existing_student = Student.query.filter_by(email=email).first()
-    if existing_student:
+    if existing_student and (student_id is None or existing_student.id != student_id):
         raise ValidationError("Email must be unique")
     
     current_year = datetime.now().year
@@ -46,7 +46,7 @@ def validate_student_data(name: str, email: str, admission_date: int) -> bool:
     
     return True
 
-def validate_teacher_data(name: str, email: str) -> bool:
+def validate_teacher_data(name: str, email: str, teacher_id: Optional[int] = None) -> bool:
 
     if not name:
         raise ValidationError("Name is required")
@@ -55,12 +55,12 @@ def validate_teacher_data(name: str, email: str) -> bool:
     
     # Check if email is unique
     existing_teacher = Teacher.query.filter_by(email=email).first()
-    if existing_teacher:
+    if existing_teacher and (teacher_id is None or existing_teacher.id != teacher_id):
         raise ValidationError("Email must be unique")
     
     return True
 
-def validate_section_data(period_id: int, teacher_id: int, section_number: str) -> bool:
+def validate_section_data(period_id: int, teacher_id: int, section_number: str, section_id: Optional[int] = None) -> bool:
 
     if not section_number:
         raise ValidationError("Section number is required")
@@ -80,7 +80,7 @@ def validate_section_data(period_id: int, teacher_id: int, section_number: str) 
         period_id=period_id,
         section_number=section_number
     ).first()
-    if existing_section:
+    if existing_section and (section_id is None or existing_section.id != section_id):
         raise ValidationError("Section number must be unique for the period")
     
     return True
@@ -165,7 +165,7 @@ def validate_student_section_data(student_id: int, section_id: int) -> bool:
     
     return True
 
-def validate_period_data(course_id: int, period: str) -> bool:
+def validate_period_data(course_id: int, period: str, period_id: Optional[int] = None) -> bool:
 
     if not period:
         raise ValidationError("Period is required")
@@ -180,7 +180,7 @@ def validate_period_data(course_id: int, period: str) -> bool:
         course_id=course_id,
         period=period
     ).first()
-    if existing_period:
+    if existing_period and (period_id is None or existing_period.id != period_id):
         raise ValidationError("Period must be unique for the course")
     
-    return True 
+    return True

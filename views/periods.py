@@ -50,7 +50,8 @@ def update_period_view(course_id, period_id):
         period_value = request.form.get('period')
         validate_period_data(
             course_id=course_id,
-            period=period_value
+            period=period_value,
+            period_id=period_id
         )
         
         update_period(period_id, request.form)

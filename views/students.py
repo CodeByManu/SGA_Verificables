@@ -46,7 +46,8 @@ def update_student_view(student_id):
         validate_student_data(
             name=request.form.get('name'),
             email=request.form.get('email'),
-            admission_date=int(request.form.get('admission_date'))
+            admission_date=int(request.form.get('admission_date')),
+            student_id=student_id
         )
         
         update_student(student_id, request.form)

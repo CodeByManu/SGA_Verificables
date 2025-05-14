@@ -57,7 +57,8 @@ def update_section_view(period_id, section_id):
         validate_section_data(
             period_id=period_id,
             teacher_id=int(request.form.get('teacher_id')),
-            section_number=request.form.get('section_number')
+            section_number=request.form.get('section_number'),
+            section_id=section_id
         )
         
         update_section(section_id, request.form)

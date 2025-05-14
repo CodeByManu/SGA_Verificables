@@ -42,7 +42,8 @@ def update_teacher_view(teacher_id):
     try:
         validate_teacher_data(
             name=request.form.get('name'),
-            email=request.form.get('email')
+            email=request.form.get('email'),
+            teacher_id=teacher_id
         )
         
         update_teacher(teacher_id, request.form)
