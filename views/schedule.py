@@ -8,7 +8,7 @@ schedule_bp = Blueprint('schedule', __name__)
 def download_schedule():
     success = generate_schedule()
     if not success:
-        flash('No hay solución factible con estas restricciones.', 'evaluation_error')
+        flash('No hay solución factible con los créditos y ramos asociados.', 'evaluation_error')
         return redirect(url_for('courses.get_courses'))
     return send_file(
         'horario_semestre.xlsx',
