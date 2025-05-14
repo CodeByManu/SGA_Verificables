@@ -8,6 +8,7 @@ from views import (
     file_uploads_bp, schedule_bp
 )
 
+
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
