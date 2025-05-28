@@ -81,31 +81,47 @@
         <div class="border rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
             <div class="flex justify-between">
                 <h5 class="font-bold text-gray-800">Sección {{ section.section_number }}</h5>
-                <div class="flex space-x-2">
-                    <a href="{{ url_for('sections.get_section_detail', section_id=section.id) }}" 
-                       class="text-green-500 hover:text-green-700">
-                        <i class="fas fa-eye"></i>
-                    </a>
-                    <button
-                        class="text-blue-500 hover:text-blue-700"
-                        data-section-id="{{ section.id }}"
-                        data-period-id="{{ period.id }}"
-                        data-section-number="{{ section.section_number }}"
-                        data-teacher-id="{{ section.teacher.id }}"
-                        data-evaluation-type="{{ section.evaluation_weight_type }}"
-                        onclick="openEditSectionModal(this)">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <form
-                        action="{{ url_for('sections.delete_section', period_id=period.id, section_id=section.id) }}"
-                        method="POST"
-                        onsubmit="return confirm('¿Está seguro que desea eliminar esta sección?');"
-                        class="inline"
-                    >
-                        <button title="Eliminar" type="submit" class="text-red-500 hover:text-red-700">
-                            <i class="fas fa-trash-alt"></i>
+                <div class="flex flex-col items-end space-y-1">
+                    <div class="flex space-x-2">
+                        <a href="{{ url_for('sections.get_section_detail', section_id=section.id) }}" 
+                        class="text-green-500 hover:text-green-700">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <button
+                            class="text-blue-500 hover:text-blue-700"
+                            data-section-id="{{ section.id }}"
+                            data-period-id="{{ period.id }}"
+                            data-section-number="{{ section.section_number }}"
+                            data-teacher-id="{{ section.teacher.id }}"
+                            data-evaluation-type="{{ section.evaluation_weight_type }}"
+                            onclick="openEditSectionModal(this)">
+                            <i class="fas fa-edit"></i>
                         </button>
-                    </form>
+                        <form
+                            action="{{ url_for('sections.delete_section', period_id=period.id, section_id=section.id) }}"
+                            method="POST"
+                            onsubmit="return confirm('¿Está seguro que desea eliminar esta sección?');"
+                            class="inline"
+                        >
+                            <button title="Eliminar" type="submit" class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    {% if section.open %}
+                    <button
+                        onclick="closeSection(this)"
+                        data-section-id="{{ section.id }}"
+                        class="text-yellow-600 hover:text-yellow-800 text-sm flex items-center"
+                    >
+                        <i class="fas fa-lock mr-1"></i> Cerrar sección
+                    </button>
+                    {% else %}
+                    <div class="text-sm text-gray-500 flex items-center">
+                        <i class="fas fa-lock text-yellow-600 mr-1"></i> Sección cerrada
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="flex items-center mt-2 text-sm">
@@ -173,4 +189,24 @@
         document.getElementById('modal-edit-section').classList.add('hidden');
     }
 </script>
+
+<script>
+function closeSection(button) {
+    const sectionId = button.getAttribute("data-section-id");
+
+    if (!confirm("¿Está seguro que desea cerrar esta sección?")) return;
+
+    fetch(`/sections/${sectionId}/close`, {
+        method: "POST"
+    })
+    .then(() => {
+        location.reload(); // ✅ fuerza recarga visual correcta
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Ocurrió un error al cerrar la sección.");
+    });
+}
+</script>
+
 {% endblock %}
