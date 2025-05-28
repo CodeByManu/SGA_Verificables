@@ -28,6 +28,9 @@ def create_section_for_period(period_id, form_data):
 def update_section(section_id, form_data):
     section = Section.query.get_or_404(section_id)
 
+    if not section.open:
+        raise ValueError("No se puede modificar una sección cerrada.")
+
     section_number = form_data.get('section_number')
     teacher_id = form_data.get('teacher_id')
     evaluation_weight_type = form_data.get('evaluation_weight_type')
@@ -39,6 +42,7 @@ def update_section(section_id, form_data):
         db.session.commit()
         return True
     return False
+
 
 def get_section_and_available_students(section_id):
     section = Section.query.get_or_404(section_id)
