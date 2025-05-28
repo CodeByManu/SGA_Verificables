@@ -1,6 +1,7 @@
 from models import db
 from models.entities import Section, Student, Teacher
 from datetime import datetime
+from services.final_grade_service import calculate_final_grades
 
 def get_all_sections():
     return Section.query.all()
@@ -63,3 +64,4 @@ def close_section(section_id):
 
     section.open = False
     db.session.commit()
+    calculate_final_grades(section_id)
