@@ -1,4 +1,4 @@
-from models import Section
+from models import Section, Task, Grade
 
 def generate_section_final_report_text(section_id):
     section = Section.query.get_or_404(section_id)
@@ -41,5 +41,33 @@ def generate_section_final_report_text(section_id):
         lines.append(f"Nota mínima: {min_grade:.2f}")
         lines.append(f"Nota máxima: {max_grade:.2f}")
         lines.append(f"Promedio general: {avg_grade:.2f}")
+
+    return "\n".join(lines)
+
+def generate_task_grades_report_text(task_id):
+    task = Task.query.get_or_404(task_id)
+    grades = Grade.query.filter_by(task_id=task_id).all()
+
+    if not grades:
+        raise ValueError("Esta tarea no tiene notas registradas.")
+
+    lines = []
+    values = []
+
+    for grade in grades:
+        student_name = grade.student.name
+        value = grade.value
+        values.append(value)
+        lines.append(f"{student_name} - {task.name}: {value:.2f}")
+
+    # Agregar resumen
+    min_grade = min(values)
+    max_grade = max(values)
+    avg_grade = round(sum(values) / len(values), 2)
+
+    lines.append("\nResumen de notas:")
+    lines.append(f"Nota mínima: {min_grade:.2f}")
+    lines.append(f"Nota máxima: {max_grade:.2f}")
+    lines.append(f"Promedio general: {avg_grade:.2f}")
 
     return "\n".join(lines)

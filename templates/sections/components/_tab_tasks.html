@@ -52,6 +52,10 @@
                                         </a>
                                         {% endif %}
                                         {% endif %}
+                                        <a href="{{ url_for('reports.download_task_grades_report', task_id=task.id) }}"
+                                            class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center mt-2">
+                                            <i class="fas fa-file-download mr-1"></i> Descargar notas
+                                        </a>
                                     </div>
                                 </div>
                             </div>
