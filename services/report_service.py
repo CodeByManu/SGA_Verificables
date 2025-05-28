@@ -1,4 +1,4 @@
-from models import Section, Task, Grade
+from models import Section, Task, Grade, Student, StudentSection
 
 def generate_section_final_report_text(section_id):
     section = Section.query.get_or_404(section_id)
@@ -11,23 +11,7 @@ def generate_section_final_report_text(section_id):
 
     for ss in section.student_sections:
         student = ss.student
-        line = [student.name]
-
-        for evaluation in evaluations:
-            task_grades = []
-            for task in evaluation.tasks:
-                grade = next(
-                    (g.value for g in student.grades if g.task_id == task.id),
-                    None
-                )
-                if grade is not None:
-                    task_grades.append(grade)
-
-            task_count = len(task_grades)
-            avg = round(sum(task_grades) / task_count, 2) if task_count > 0 else 0.0
-            grades_str = ", ".join(f"{g:.1f}" for g in task_grades)
-            line.append(f"{evaluation.name}: [{grades_str}] → {avg:.2f}")
-
+        line = build_student_line_with_evaluations(student, evaluations)
         final_grade = ss.final_grade or 0.0
         final_grades.append(final_grade)
         line.append(f"Nota final: {final_grade:.2f}")
@@ -43,6 +27,18 @@ def generate_section_final_report_text(section_id):
         lines.append(f"Promedio general: {avg_grade:.2f}")
 
     return "\n".join(lines)
+
+def build_student_line_with_evaluations(student, evaluations):
+    line_parts = [student.name]
+    for evaluation in evaluations:
+        task_grades = [
+            g.value for task in evaluation.tasks
+            for g in student.grades if g.task_id == task.id
+        ]
+        avg = round(sum(task_grades) / len(task_grades), 2) if task_grades else 0.0
+        grades_str = ", ".join(f"{g:.1f}" for g in task_grades)
+        line_parts.append(f"{evaluation.name}: [{grades_str}] → {avg:.2f}")
+    return line_parts
 
 def generate_task_grades_report_text(task_id):
     task = Task.query.get_or_404(task_id)
@@ -60,7 +56,6 @@ def generate_task_grades_report_text(task_id):
         values.append(value)
         lines.append(f"{student_name} - {task.name}: {value:.2f}")
 
-    # Agregar resumen
     min_grade = min(values)
     max_grade = max(values)
     avg_grade = round(sum(values) / len(values), 2)
@@ -71,3 +66,47 @@ def generate_task_grades_report_text(task_id):
     lines.append(f"Promedio general: {avg_grade:.2f}")
 
     return "\n".join(lines)
+
+def generate_student_certificate_text(student_id):
+    student = Student.query.get_or_404(student_id)
+    student_sections = StudentSection.query.filter_by(student_id=student_id).all()
+
+    if not student_sections:
+        raise ValueError("Este alumno no tiene cursos registrados.")
+
+    lines = [f"Certificado de notas para: {student.name}", f"Email: {student.email}", ""]
+
+    for ss in student_sections:
+        section = ss.section
+        if not section or section.open:
+            continue
+
+        course = section.period.course
+        period_label = section.period.period
+        final = ss.final_grade or 0.0
+
+        lines.append(f"{course.name} ({course.code}) - Sección {section.section_number} - {period_label}")
+        lines.append(f"Nota final: {final:.2f}\n")
+
+        for evaluation in section.evaluations:
+            lines.extend(build_evaluation_block(student, evaluation))
+
+        lines.append("")
+
+    return "\n".join(lines)
+
+def build_evaluation_block(student, evaluation):
+    task_grades = []
+    task_lines = []
+
+    for task in evaluation.tasks:
+        grade = next((g.value for g in student.grades if g.task_id == task.id), None)
+        if grade is not None:
+            task_grades.append(grade)
+            task_lines.append(f" - {task.name}: {grade:.2f}")
+
+    if task_grades:
+        avg = round(sum(task_grades) / len(task_grades), 2)
+        header = f"Evaluación: {evaluation.name} → Promedio: {avg:.2f}"
+        return [header] + task_lines + [""]
+    return []

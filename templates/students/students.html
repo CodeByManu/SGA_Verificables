@@ -190,6 +190,10 @@
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </form>
+                            <a href="{{ url_for('reports.download_student_certificate', student_id=student.id) }}"
+                                class="text-indigo-600 hover:text-indigo-800" title="Descargar certificado">
+                                    <i class="fas fa-file-download"></i>
+                            </a>
                         </div>
                     </td>
                 </tr>
