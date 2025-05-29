@@ -1,4 +1,4 @@
-from models import db, Section, StudentSection
+from models import db, Section
 
 def calculate_final_grades(section_id):
     """Calcula y guarda las notas finales de todos los estudiantes en una sección cerrada."""
