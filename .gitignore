@@ -10,6 +10,7 @@ __pycache__/
 *.log
 
 DS_Store
+.DS_Store
 
 # Archivos de entorno
 .env
