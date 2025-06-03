@@ -7,6 +7,7 @@ from services.course_service import (
     delete_course_by_id
 )
 from models.validators import validate_course_data, ValidationError
+from utils.types_validators import validate_integer, validate_required_string
 
 course_bp = Blueprint('courses', __name__)
 
@@ -24,9 +25,9 @@ def get_course_detail(course_id):
 def post_course():
     try:
         validate_course_data(
-            code=request.form.get('code'),
-            name=request.form.get('name'),
-            credits=int(request.form.get('credits')) if request.form.get('credits') else None
+            code=validate_required_string(request.form.get('code'), 'Course code'),
+            name=validate_required_string(request.form.get('name'), 'Course name'),
+            credits=validate_integer(request.form.get('credits'), 'Credits')
         )
         
         create_course(request.form)
@@ -44,22 +45,18 @@ def post_course():
 def update_course_view(course_id):
     try:
         validate_course_data(
-            code=request.form.get('code'),
-            name=request.form.get('name'),
-            credits=int(request.form.get('credits')) if request.form.get('credits') else None,
+            code=validate_required_string(request.form.get('code'), 'Course code'),
+            name=validate_required_string(request.form.get('name'), 'Course name'),
+            credits=validate_integer(request.form.get('credits'), 'Credits'),
             course_id=course_id
         )
-        print("Updating course with ID:", course_id)
         update_course(course_id, request.form)
         flash('Course updated successfully!', 'success')
     except ValidationError as e:
-        print("Validation error:", str(e))
         flash(str(e), 'error')
     except ValueError:
-        print("Invalid credits value")
         flash('Invalid credits value', 'error')
     except Exception as e:
-        print("An error occurred:", str(e))
         flash('An error occurred while updating the course', 'error')
     
     return redirect(url_for('courses.get_courses'))

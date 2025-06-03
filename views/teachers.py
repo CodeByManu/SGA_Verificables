@@ -7,6 +7,7 @@ from services.teacher_service import (
     delete_teacher_by_id
 )
 from models.validators import validate_teacher_data, ValidationError
+from utils.types_validators import validate_email_format, validate_required_string
 
 teacher_bp = Blueprint('teachers', __name__)
 
@@ -23,10 +24,9 @@ def get_teacher_detail(teacher_id):
 @teacher_bp.route('/teachers', methods=['POST'])
 def post_teacher():
     try:
-        validate_teacher_data(
-            name=request.form.get('name'),
-            email=request.form.get('email')
-        )
+        name = validate_required_string(request.form.get('name'), 'Teacher name')
+        email = validate_email_format(request.form.get('email'), 'Teacher email')
+        validate_teacher_data(name, email)
         
         create_teacher(request.form)
         flash('Teacher added successfully!', 'success')
@@ -40,11 +40,9 @@ def post_teacher():
 @teacher_bp.route('/teachers/<int:teacher_id>', methods=['POST'])
 def update_teacher_view(teacher_id):
     try:
-        validate_teacher_data(
-            name=request.form.get('name'),
-            email=request.form.get('email'),
-            teacher_id=teacher_id
-        )
+        name = validate_required_string(request.form.get('name'), 'Teacher name')
+        email = validate_email_format(request.form.get('email'), 'Teacher email')
+        validate_teacher_data(name, email, teacher_id)
         
         update_teacher(teacher_id, request.form)
         flash('Teacher updated successfully!', 'success')

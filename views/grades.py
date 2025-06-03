@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from models.entities import Section, Task
 from services.grade_service import get_students_in_section, update_grades_for_task
 from models.validators import validate_grade_data, ValidationError
+from utils.types_validators import validate_float
 
 grades_bp = Blueprint('grades', __name__)
 
@@ -24,7 +25,7 @@ def grade_task(section_id, task_id):
                     validate_grade_data(
                         task_id=task_id,
                         student_id=student.id,
-                        value=float(grade_value)
+                        value=validate_float(grade_value, 'Grade value')
                     )
             
             update_grades_for_task(task_id, section_id, students, request.form)
