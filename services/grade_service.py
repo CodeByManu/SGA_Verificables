@@ -13,6 +13,41 @@ def get_existing_grades(task_id):
         grade.student_id: grade for grade in Grade.query.filter_by(task_id=task_id).all()
     }
 
+def delete_grade_by_student_and_task(student_id, task_id):
+
+    try:
+        grade = Grade.query.filter_by(
+            student_id=student_id, 
+            task_id=task_id
+        ).first()
+        
+        if grade:
+            db.session.delete(grade)
+            db.session.commit()
+            return True
+        return False
+        
+    except Exception as e:
+        db.session.rollback()
+        raise e
+
+def delete_all_grades_for_task(task_id):
+
+    try:
+        grades = Grade.query.filter_by(task_id=task_id).all()
+        count = len(grades)
+        
+        for grade in grades:
+            db.session.delete(grade)
+        
+        db.session.commit()
+        return count
+        
+    except Exception as e:
+        db.session.rollback()
+        raise e
+    
+
 def update_grades_for_task(task_id, section_id, students, form_data):
     existing_grades = get_existing_grades(task_id)
     changes_made = False
