@@ -249,3 +249,49 @@ def validate_period_format(period_string: str, field_name: str = "período") -> 
         )
     
     return period
+
+def validate_course_code(value: str, field_name: str = "código de curso") -> str:
+
+    if not value:
+        raise FormValidationError(f"{field_name} es requerido")
+    
+    if not isinstance(value, str):
+        raise FormValidationError(f"{field_name} debe ser texto")
+
+    code = value.strip().upper()
+    if not code:
+        raise FormValidationError(f"{field_name} no puede estar vacío")
+    
+    pattern = r'^([A-Z]{3})(-\d{3}|\d{4})$'
+    match = re.match(pattern, code)
+    
+    if not match:
+        raise FormValidationError(
+            f"{field_name} debe tener formato XXX-NNN o XXXNNNN (3 letras, guión + 3 números o 4 números). Ejemplo: ICC-103 o ICC1234"
+        )
+    
+    letters, numbers_part = match.groups()
+    
+    if numbers_part.startswith('-'):
+        numbers = numbers_part[1:]
+    else:
+        numbers = numbers_part
+    
+    if len(set(letters)) == 1:
+        raise FormValidationError(
+            f"{field_name} no puede tener las mismas 3 letras repetidas"
+        )
+    
+    if numbers == "000":
+        raise FormValidationError(
+            f"{field_name} no puede terminar en 000"
+        )
+    
+    number_value = int(numbers)
+    if number_value < 1:
+        raise FormValidationError(
+            f"{field_name} debe tener números mayores a 0"
+        )
+    
+    return code
+

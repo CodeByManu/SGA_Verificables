@@ -7,7 +7,7 @@ from services.student_service import (
     delete_student_by_id
 )
 from models.validators import validate_student_data, ValidationError
-from utils.types_validators import validate_date, validate_email_format, validate_required_string
+from utils.types_validators import validate_date, validate_email_format, validate_required_string, validate_integer
 
 student_bp = Blueprint('students', __name__)
 
@@ -24,11 +24,11 @@ def get_student_detail(student_id):
 @student_bp.route('/students', methods=['POST'])
 def post_student():
     try:
+        
         name = validate_required_string(request.form.get('name'), 'Student name')
         email = validate_email_format(request.form.get('email'), 'Student email')
-        admission_date = validate_date(request.form.get('admission_date'), 'Admission date')
+        admission_date = validate_integer(request.form.get('admission_date'), 'Admission date')
         validate_student_data(name, email, admission_date)
-        
         create_student(request.form)
         flash('Student created successfully!', 'success')
     except ValidationError as e:

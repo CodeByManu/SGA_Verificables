@@ -7,7 +7,7 @@ from services.course_service import (
     delete_course_by_id
 )
 from models.validators import validate_course_data, ValidationError
-from utils.types_validators import validate_integer, validate_required_string
+from utils.types_validators import validate_course_code, validate_integer, validate_required_string
 
 course_bp = Blueprint('courses', __name__)
 
@@ -25,7 +25,7 @@ def get_course_detail(course_id):
 def post_course():
     try:
         validate_course_data(
-            code=validate_required_string(request.form.get('code'), 'Course code'),
+            code=validate_course_code(request.form.get('code'), 'Course code'),
             name=validate_required_string(request.form.get('name'), 'Course name'),
             credits=validate_integer(request.form.get('credits'), 'Credits')
         )

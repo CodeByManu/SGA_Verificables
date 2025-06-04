@@ -17,6 +17,7 @@ def create_student(form_data):
             print("❌ Campos faltantes:", form_data)
             raise ValueError("Faltan campos obligatorios")
 
+        
         student = Student(name=name, email=email, admission_date=admission_date)
         db.session.add(student)
         db.session.commit()
