@@ -1,12 +1,9 @@
-from services.student_service import get_all_students
 from services.section_service import get_all_sections
-from services.teacher_service import get_all_teachers
 from services.classroom_service import get_all_classrooms
 from services.student_section_service import get_all_student_section
 
 from ortools.sat.python import cp_model
 import pandas as pd
-import xlsxwriter
 
 def load_schedule_data():
     student_section = get_all_student_section()

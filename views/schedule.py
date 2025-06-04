@@ -1,4 +1,4 @@
-from flask import Blueprint, send_file, current_app
+from flask import Blueprint, send_file
 from flask import flash, redirect, url_for
 from services.schedule_service import generate_schedule
 
