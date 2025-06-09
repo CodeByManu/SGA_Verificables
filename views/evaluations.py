@@ -4,7 +4,6 @@ from services.evaluation_service import (
     delete_evaluation_by_id,
     update_evaluation
 )
-from models.entities import Evaluation
 from models.validators import validate_evaluation_data, ValidationError
 from utils.types_validators import validate_float, validate_required_string
 

@@ -48,7 +48,7 @@ def delete_all_grades_for_task(task_id):
         raise e
     
 
-def update_grades_for_task(task_id, section_id, students, form_data):
+def update_grades_for_task(task_id, students, form_data):
     existing_grades = get_existing_grades(task_id)
     changes_made = False
 

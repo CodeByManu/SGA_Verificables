@@ -1,8 +1,6 @@
 from models import db
 from models.entities import StudentSection
 
-# CORRECTO
-
 def get_all_student_section():
     return StudentSection.query.all()
 
