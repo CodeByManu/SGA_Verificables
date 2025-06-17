@@ -1,5 +1,9 @@
 from models.entities import Course, Teacher, Student, Period, Grade
 
+EXCELENT = 6.5
+GOOD = 5.5
+REGULAR = 4.0
+
 def get_basic_counts():
     return {
         'courses': Course.query.all(),
@@ -23,11 +27,11 @@ def get_grade_statistics():
     }
     for grade in Grade.query.all():
         v = grade.value
-        if v >= 6.5:
+        if v >= EXCELENT:
             grade_ranges['Excelente (6.5-7)'] += 1
-        elif v >= 5.5:
+        elif v >= GOOD:
             grade_ranges['Bueno (5.5-6.4)'] += 1
-        elif v >= 4:
+        elif v >= REGULAR:
             grade_ranges['Regular (4-5.4)'] += 1
         else:
             grade_ranges['Insuficiente (<4)'] += 1

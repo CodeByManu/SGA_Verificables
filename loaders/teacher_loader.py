@@ -1,61 +1,88 @@
 from models import db, Teacher
 from utils.utils import (
-    is_valid_email,
     standard_error,
     validate_required_fields,
     format_duplicate,
     safe_commit,
     standard_return
 )
+from utils.types_validators import (
+    validate_email_format,
+    validate_required_string,
+    validate_id_parameter,
+    FormValidationError
+)
 
-def validate_teacher(item):
+def validate_teachers_data(data):
+    if not isinstance(data, dict):
+        return None, ["El archivo debe ser un objeto JSON"]
+
+    teachers = data.get('profesores')
+    if not isinstance(teachers, list):
+        return None, ["El campo 'profesores' debe ser una lista de objetos"]
+
+    return teachers, None
+
+
+def process_teacher_entry(item, force):
     context = f"ID {item.get('id') or 'N/A'}"
+
     valid_data, error = validate_required_fields(item, ['nombre', 'correo'], context)
     if error:
-        return None, error
+        return None, None, error
 
-    email = item.get("correo")
-    if not is_valid_email(email):
-        return None, standard_error(context, f"Correo inválido: {email}")
+    try:
+        teacher_id = item.get("id")
+        if teacher_id is not None:
+            validate_id_parameter(teacher_id, "ID")
 
-    return {
-        "id": item.get("id"),
-        "name": item["nombre"],
-        "email": email
-    }, None
+        name = validate_required_string(item["nombre"], "Nombre")
+        email = validate_email_format(item["correo"], "Correo")
+
+        existing = Teacher.query.filter_by(email=email).first()
+
+        if existing and not force:
+            return None, format_duplicate(existing.__dict__, item, ['id', 'name', 'email']), None
+
+        if existing and force:
+            existing.name = name
+            existing.email = email
+            return 'updated', None, None
+
+        teacher = Teacher(id=teacher_id, name=name, email=email)
+        db.session.add(teacher)
+        return 'inserted', None, None
+
+    except FormValidationError as e:
+        return None, None, standard_error(context, str(e))
+
 
 def import_teachers(data, force=False):
-    teachers = data.get("profesores", [])
+    teachers, structure_errors = validate_teachers_data(data)
+    if structure_errors:
+        return standard_return(errors=structure_errors)
+
     inserted = 0
+    updated = 0
     duplicated = []
     errors = []
 
     for item in teachers:
-        valid_data, error = validate_teacher(item)
+        result, duplicate_info, error = process_teacher_entry(item, force)
+
         if error:
             print(f"⚠️ {error}")
             errors.append(error)
             continue
 
-        existing = Teacher.query.filter_by(email=valid_data["email"]).first()
-
-        if existing and not force:
-            duplicated.append(format_duplicate(existing.__dict__, item, ['id', 'name', 'email']))
+        if duplicate_info:
+            duplicated.append(duplicate_info)
             continue
 
-        if existing and force:
-            existing.name = valid_data["name"]
-            existing.email = valid_data["email"]
-            inserted += 1  
-            continue
-
-        teacher = Teacher(
-            id=valid_data["id"],
-            name=valid_data["name"],
-            email=valid_data["email"]
-        )
-        db.session.add(teacher)
-        inserted += 1
+        if result == 'inserted':
+            inserted += 1
+        elif result == 'updated':
+            updated += 1
 
     safe_commit()
     return standard_return(inserted=inserted, ignored=len(errors), duplicated=duplicated, errors=errors)

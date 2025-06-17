@@ -24,7 +24,7 @@ def create_student(form_data):
 
     except Exception as e:
         print(f"❌ Error al crear estudiante: {e}")
-        raise  # 🔁 vuelve a lanzar el error si quieres que Flask lo muestre
+        raise 
 
 
 def update_student(student_id, form_data):
