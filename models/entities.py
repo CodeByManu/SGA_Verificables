@@ -50,6 +50,7 @@ class Section(db.Model):
     teacher_id = db.Column(db.Integer, db.ForeignKey('teachers.id'), nullable=False)
     section_number = db.Column(db.String(10), nullable=False)
     evaluation_weight_type = db.Column(db.String(50))
+    open = db.Column(db.Boolean, nullable=False, default=True)
 
     period = db.relationship('Period', back_populates='sections')
     teacher = db.relationship('Teacher', back_populates='sections')
@@ -83,6 +84,7 @@ class StudentSection(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
     section_id = db.Column(db.Integer, db.ForeignKey('sections.id'), nullable=False)
+    final_grade = db.Column(db.Float, nullable=True)
 
     student = db.relationship('Student', back_populates='student_sections')
     section = db.relationship('Section', back_populates='student_sections')

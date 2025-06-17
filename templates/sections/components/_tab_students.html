@@ -4,18 +4,14 @@
             <h3 class="text-xl font-semibold text-purple-700">
                 <i class="fas fa-user-graduate mr-2"></i> Estudiantes
             </h3>
-            <div class="flex items-right mt-4 md:mt-0">
-                <label for="json-file-input-teachers" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
-                    <i class="fas fa-upload mr-2"></i> Cargar JSON
-                </label>
-                <input type="file" id="json-file-input-teachers" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/students_section')">
-            </div>
+            {% if section.open %}
             <button
                 class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
                 onclick="openStudentModal()"
             >
                 <i class="fas fa-plus mr-2"></i> Agregar estudiantes
             </button>
+            {% endif %}
         </div>
 
         {% if section.student_sections %}
@@ -32,6 +28,7 @@
                             <div class="text-sm text-gray-500">{{ ss.student.email }}</div>
                         </div>
                     </div>
+                    {% if section.open %}
                     <form
                         method="POST"
                         action="{{ url_for('student_sections.remove_student_from_section_view', section_id=section.id, student_id=ss.student.id) }}"
@@ -42,6 +39,7 @@
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </form>
+                    {% endif %}
                 </div>
                 <div class="text-sm text-gray-600">
                     <div><span class="font-medium">Año de admisión:</span> {{ ss.student.admission_date }}</div>

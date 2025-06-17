@@ -30,7 +30,7 @@ def validate_course_data(code: str, name: str, credits: Optional[int] = None, co
 
 def validate_student_data(name: str, email: str, admission_date: int, student_id: Optional[int] = None) -> bool:
 
-    if not name:
+    if not name or not name.strip():
         raise ValidationError("Name is required")
     
     validate_email(email)
@@ -100,7 +100,7 @@ def validate_evaluation_data(name: str, section_id: int, weight: float) -> bool:
     
     return True
 
-def validate_task_data(name: str, evaluation_id: int, date: datetime, weight: Optional[float] = None) -> bool:
+def validate_task_data(name: str, evaluation_id: int, date: datetime.date, weight: Optional[float] = None) -> bool:
 
     if not name:
         raise ValidationError("Name is required")

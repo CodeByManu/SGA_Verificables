@@ -17,13 +17,14 @@ def create_student(form_data):
             print("❌ Campos faltantes:", form_data)
             raise ValueError("Faltan campos obligatorios")
 
+        
         student = Student(name=name, email=email, admission_date=admission_date)
         db.session.add(student)
         db.session.commit()
 
     except Exception as e:
         print(f"❌ Error al crear estudiante: {e}")
-        raise  # 🔁 vuelve a lanzar el error si quieres que Flask lo muestre
+        raise 
 
 
 def update_student(student_id, form_data):

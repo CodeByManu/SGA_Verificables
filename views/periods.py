@@ -7,6 +7,7 @@ from services.period_service import (
 )
 from models.entities import Teacher  
 from models.validators import validate_period_data, ValidationError
+from utils.types_validators import validate_period_format
 
 period_bp = Blueprint('periods', __name__)
 
@@ -19,13 +20,13 @@ def get_period_detail(period_id):
 @period_bp.route('/courses/<int:course_id>/periods', methods=['POST'])
 def post_period(course_id):
     try:
-        period_value = request.form.get('period')
+        period = validate_period_format(request.form.get('period'), 'Period')
         validate_period_data(
             course_id=course_id,
-            period=period_value
+            period=period
         )
         
-        create_period_for_course(course_id, period_value)
+        create_period_for_course(course_id, period)
         flash('Period added successfully!', 'success')
     except ValidationError as e:
         flash(str(e), 'error')
@@ -47,10 +48,10 @@ def delete_period(course_id, period_id):
 @period_bp.route('/courses/<int:course_id>/periods/<int:period_id>', methods=['POST'])
 def update_period_view(course_id, period_id):
     try:
-        period_value = request.form.get('period')
+        period = validate_period_format(request.form.get('period'), 'Period')
         validate_period_data(
             course_id=course_id,
-            period=period_value,
+            period=period,
             period_id=period_id
         )
         

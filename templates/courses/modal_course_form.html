@@ -9,6 +9,7 @@
                     type="text"
                     id="code"
                     name="code"
+                    required
                     placeholder="e.g. ICC-101"
                     value="{{ course.code if course else '' }}"
                     class="border border-gray-300 rounded w-full py-2 px-3 focus:outline-none focus:border-teal-400"
@@ -20,6 +21,7 @@
                     type="text"
                     id="name"
                     name="name"
+                    required
                     placeholder="e.g. Introduction to Programming"
                     value="{{ course.name if course else '' }}"
                     class="border border-gray-300 rounded w-full py-2 px-3 focus:outline-none focus:border-teal-400"
@@ -43,6 +45,7 @@
                     name="credits"
                     max="5"
                     placeholder="e.g. 10"
+                    required
                     value="{{ course.credits if course else '' }}"
                     class="border border-gray-300 rounded w-full py-2 px-3 focus:outline-none focus:border-teal-400"
                 />

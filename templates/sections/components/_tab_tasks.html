@@ -4,18 +4,14 @@
             <h3 class="text-xl font-semibold text-blue-700">
                 <i class="fas fa-tasks mr-2"></i> Tareas
             </h3>
-            <div class="flex items-right mt-4 md:mt-0">
-                <label for="json-file-input-teachers" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors flex items-center mr-4">
-                    <i class="fas fa-upload mr-2"></i> Cargar JSON alumnos-notas
-                </label>
-                <input type="file" id="json-file-input-teachers" class="hidden" accept=".json" onchange="handleJsonUpload(this, '/upload/grades')">
-            </div>
+            {% if section.open %}
             <button
                 class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
                 onclick="openTaskModal()"
             >
                 <i class="fas fa-plus mr-2"></i> Agregar tarea
             </button>
+            {% endif %}
         </div>
 
         {% set has_tasks = namespace(exists=false) %}
@@ -38,6 +34,7 @@
                                 <h5 class="font-bold text-gray-800">{{ task.name }}</h5>
                                 <div class="flex space-x-2">
                                     <div class="d-flex">
+                                        {% if section.open %}
                                         <form
                                             method="POST"
                                             action="{{ url_for('tasks.delete_task', section_id=section.id, evaluation_id=evaluation.id, task_id=task.id) }}"
@@ -54,6 +51,11 @@
                                             <i class="fas fa-star"></i> Calificar
                                         </a>
                                         {% endif %}
+                                        {% endif %}
+                                        <a href="{{ url_for('reports.download_task_grades_report', task_id=task.id) }}"
+                                            class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center mt-2">
+                                            <i class="fas fa-file-download mr-1"></i> Descargar notas
+                                        </a>
                                     </div>
                                 </div>
                             </div>

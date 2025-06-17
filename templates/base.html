@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/flash-messages.css') }}">
+    
     <title>SGA - Sistema de Gestión Académica</title>
     <style>
       body {
@@ -21,12 +24,43 @@
       {% include 'sidebar.html' %}
       
       <main class="transition-all duration-300 mt-16 ml-[50px] flex-grow px-4 py-6">
+        
+        <!-- ✅ FLASH MESSAGES CONTAINER -->
+        <div class="flash-messages mb-4">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="flash-message alert-{{ category }}" role="alert">
+                  <div class="flash-content">
+                    {% if category == 'success' %}
+                      <i class="flash-icon fas fa-check-circle"></i>
+                    {% elif category == 'error' %}
+                      <i class="flash-icon fas fa-exclamation-circle"></i>
+                    {% elif category == 'warning' %}
+                      <i class="flash-icon fas fa-exclamation-triangle"></i>
+                    {% elif category == 'info' %}
+                      <i class="flash-icon fas fa-info-circle"></i>
+                    {% endif %}
+                    <span class="flash-text">{{ message }}</span>
+                  </div>
+                  <button type="button" class="flash-close" title="Cerrar">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </div>
+        
         {% block content %}
         {% endblock %}
       </main>
     </div>
     
     {% include 'modal_upload_result.html' %}
+
+    <script src="{{ url_for('static', filename='js/flash-messages.js') }}"></script>
+    
     {% block scripts %}{% endblock %}
   </body>
 </html>

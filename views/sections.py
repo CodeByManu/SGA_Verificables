@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from services.section_service import (
-    get_section_by_id,
     create_section_for_period,
     delete_section_by_id,
     update_section,
-    get_section_and_available_students
+    get_section_and_available_students,
+    close_section
 )
 from models.validators import validate_section_data, ValidationError
 
@@ -71,3 +71,13 @@ def update_section_view(period_id, section_id):
         flash('An error occurred while updating the section', 'error')
     
     return redirect(url_for('periods.get_period_detail', period_id=period_id))
+
+@section_bp.route('/sections/<int:section_id>/close', methods=['POST'])
+def close_section_view(section_id):
+    try:
+        close_section(section_id)
+        flash('Section closed successfully.', 'success')
+    except Exception as e:
+        flash(str(e), 'error')
+
+    return redirect(url_for('sections.get_section_detail', section_id=section_id))
