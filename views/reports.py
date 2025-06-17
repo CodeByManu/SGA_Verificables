@@ -1,5 +1,4 @@
 from flask import Blueprint, Response
-from services.report_service import generate_section_final_report_text, generate_task_grades_report_text, generate_student_certificate_text
 from services.report_service import (
     generate_section_final_report_excel,
     generate_task_grades_report_excel,
